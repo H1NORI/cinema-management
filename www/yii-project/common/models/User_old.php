@@ -2,38 +2,31 @@
 
 namespace common\models;
 
-use common\components\DataLogBehavior;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
+use common\components\DataLogBehavior;
 use yii\web\IdentityInterface;
+use dektrium\user\models\User as BaseUser;
+
 
 /**
  * User model
  *
- * @property int $id
+ * @property integer $id
  * @property string $username
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $verification_token
  * @property string $email
  * @property string $auth_key
- * @property string $role
- * @property int $status
- * @property int $created_at
- * @property int $updated_at
+ * @property integer $status
+ * @property integer $created_at
+ * @property integer $updated_at
  * @property string $password write-only password
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends BaseUser implements IdentityInterface
 {
-    /**
-     * ENUM field values
-     */
-    const ROLE_USER = 'USER';
-    const ROLE_ADMIN = 'ADMIN';
-
-
     const STATUS_DELETED = 0;
     const STATUS_INACTIVE = 9;
     const STATUS_ACTIVE = 10;
@@ -64,18 +57,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['password_reset_token', 'verification_token'], 'default', 'value' => null],
-            [['role'], 'default', 'value' => 'USER'],
-            [['status'], 'default', 'value' => 10],
-            [['username', 'auth_key', 'password_hash', 'email'], 'required'],
-            [['role'], 'string'],
-            [['status', 'created_at', 'updated_at'], 'integer'],
-            [['username', 'password_hash', 'password_reset_token', 'email', 'verification_token'], 'string', 'max' => 255],
-            [['auth_key'], 'string', 'max' => 32],
-            ['role', 'in', 'range' => array_keys(self::optsRole())],
-            [['username'], 'unique'],
-            [['email'], 'unique'],
-            [['password_reset_token'], 'unique'],
+            ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
         ];
     }
@@ -88,11 +70,13 @@ class User extends ActiveRecord implements IdentityInterface
         return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
     }
 
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
+    public static function findIdentityByAccessToken($token, $type = null) {
         try {
             $jwt = Yii::$app->jwt;
             $token = $jwt->loadToken((string) $token);
+
+            // $parsed = $jwt->getParser()->parse((string)$token);
+            // $uid = $parsed->claims()->get('uid');
 
             return static::findOne(['id' => $token->claims()->get('uid', null)]);
         } catch (\Exception $e) {
@@ -147,8 +131,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token verify email token
      * @return static|null
      */
-    public static function findByVerificationToken($token)
-    {
+    public static function findByVerificationToken($token) {
         return static::findOne([
             'verification_token' => $token,
             'status' => self::STATUS_INACTIVE
@@ -252,51 +235,5 @@ class User extends ActiveRecord implements IdentityInterface
     public static function getTotalCount()
     {
         return static::find()->count();
-    }
-
-    /**
-     * column role ENUM value labels
-     * @return string[]
-     */
-    public static function optsRole()
-    {
-        return [
-            self::ROLE_USER => 'USER',
-            self::ROLE_ADMIN => 'ADMIN',
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function displayRole()
-    {
-        return self::optsRole()[$this->role];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRoleUser()
-    {
-        return $this->role === self::ROLE_USER;
-    }
-
-    public function setRoleToUser()
-    {
-        $this->role = self::ROLE_USER;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRoleAdmin()
-    {
-        return $this->role === self::ROLE_ADMIN;
-    }
-
-    public function setRoleToAdmin()
-    {
-        $this->role = self::ROLE_ADMIN;
     }
 }

@@ -6,12 +6,12 @@ return [
     ],
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'modules' => [
-        'user' => [
-            'class' => 'dektrium\user\Module',
-            'modelMap' => [
-                'User' => 'common\models\User',
-            ],
-        ],
+        // 'user' => [
+        //     'class' => 'dektrium\user\Module',
+        //     'modelMap' => [
+        //         'User' => 'common\models\User',
+        //     ],
+        // ],
     ],
     'components' => [
         'cache' => [

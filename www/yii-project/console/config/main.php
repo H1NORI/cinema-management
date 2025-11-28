@@ -17,10 +17,10 @@ return [
         '@npm'   => '@vendor/npm-asset',
     ],
     'modules' => [
-        'user' => [
-            'class' => 'dektrium\user\Module',
-        ],
-        'rbac' => 'dektrium\rbac\RbacConsoleModule',
+        // 'user' => [
+        //     'class' => 'dektrium\user\Module',
+        // ],
+        // 'rbac' => 'dektrium\rbac\RbacConsoleModule',
     ],
     'controllerMap' => [
         'fixture' => [

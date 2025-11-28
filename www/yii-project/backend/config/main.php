@@ -12,38 +12,38 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [
-        'user' => [
-            'class' => 'dektrium\user\Module',
-            'controllerMap' => [
-                'admin' => 'backend\controllers\AdminController',
-                'security' => 'backend\controllers\user\SecurityController',
-            ],
-            'modelMap' => [
-                'User' => 'common\models\User',
-            ],
-            'admins' => ['admin']
-        ],
-        'rbac' => [
-            'class' => 'dektrium\rbac\RbacWebModule',
-            'as access' => [
-                'class' => 'yii\filters\AccessControl',
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return \Yii::$app->user->identity->isAdmin;
-                        }
-                    ],
-                ],
-            ],
-        ],
+        // 'user' => [
+        //     'class' => 'dektrium\user\Module',
+        //     'controllerMap' => [
+        //         'admin' => 'backend\controllers\AdminController',
+        //         'security' => 'backend\controllers\user\SecurityController',
+        //     ],
+        //     'modelMap' => [
+        //         'User' => 'common\models\User',
+        //     ],
+        //     'admins' => ['admin']
+        // ],
+        // 'rbac' => [
+        //     'class' => 'dektrium\rbac\RbacWebModule',
+        //     'as access' => [
+        //         'class' => 'yii\filters\AccessControl',
+        //         'rules' => [
+        //             [
+        //                 'allow' => true,
+        //                 'roles' => ['@'],
+        //                 'matchCallback' => function ($rule, $action) {
+        //                     return \Yii::$app->user->identity->isAdmin;
+        //                 }
+        //             ],
+        //         ],
+        //     ],
+        // ],
         'admin' => [
             'class' => 'hail812\admin\Module',
         ],
-        'authManager' => [
-            'class' => 'yii\rbac\DbManager',
-        ],
+        // 'authManager' => [
+        //     'class' => 'yii\rbac\DbManager',
+        // ],
         'gii' => [
             'class' => 'yii\gii\Module',
             'generators' => [
