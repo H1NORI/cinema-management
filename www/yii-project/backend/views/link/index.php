@@ -1,0 +1,122 @@
+<?php
+
+use backend\models\LinkForm;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\grid\ActionColumn;
+use yii\grid\GridView;
+
+/** @var yii\web\View $this */
+/** @var backend\models\search\LinkSearch $searchModel */
+/** @var yii\data\ActiveDataProvider $dataProvider */
+/** @var int $pageSize */
+
+$this->title = 'Links';
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="link-form-index">
+
+    <!-- <h1><?= Html::encode($this->title) ?></h1> -->
+
+    <p>
+        <?= Html::a('Create Link', ['create'], ['class' => 'btn btn-success']) ?>
+    </p>
+
+    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
+        'columns' => [
+            [
+                'attribute' => 'id',
+                'headerOptions' => ['style' => 'width:100px'],
+            ],
+            'label',
+            [
+                'attribute' => 'is_header',
+                'headerOptions' => ['style' => 'width:100px'],
+                'value' => function ($model) {
+                        return $model->getIsHeaderNameBadge();
+                    },
+                'filter' => LinkForm::getIsHeaderFilters(),
+                'format' => 'raw',
+
+            ],
+            'url:url',
+            [
+                'attribute' => 'priority',
+                'headerOptions' => ['style' => 'width:100px'],
+            ],
+            'icon',
+            [
+                'attribute' => 'status',
+                'headerOptions' => ['style' => 'width:100px'],
+                'value' => function ($model) {
+                        return $model->getStatusNameBadge();
+                    },
+                'filter' => LinkForm::getStatusFilters(),
+                'format' => 'raw',
+
+            ],
+            //'icon_style',
+            //'target',
+            //'created_at',
+            //'updated_at',
+            [
+                'class' => ActionColumn::className(),
+                'urlCreator' => function ($action, LinkForm $model, $key, $index, $column) {
+                    return Url::toRoute([$action, 'id' => $model->id]);
+                 }
+            ],
+        ],
+        'tableOptions' => [
+            'class' => 'table table-hover table-striped',
+        ],
+        'layout' => "
+        <div class='card'>    
+            <div class='card-header'>
+                <div class='d-flex'>
+                    <form method='get' class='d-flex align-items-center'>
+                        <div>Show</div>
+                        <select name='TaskSearch[pageSize]' class='form-control float-right mx-2' onchange='this.form.submit()'>
+                            <option value='10' <?= $pageSize === 10 ? 'selected' : '' ?>10</option>
+                            <option value='20' <?= $pageSize === 20 ? 'selected' : '' ?>20</option>
+                            <option value='50' <?= $pageSize === 50 ? 'selected' : '' ?>50</option>
+                            <option value='100' <?= $pageSize === 100 ? 'selected' : '' ?>100</option>
+                        </select>
+                        <div>Entries</div>
+                    </form>
+
+                    <div class='input-group ml-auto' style='max-width: 200px;'>
+                        <input type='text' name='table_search' class='form-control float-right' placeholder='Search'>
+
+                        <div class='input-group-append'>
+                            <button type='submit' class='btn btn-default'>
+                                <i class='fas fa-search'></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class='card-body table-responsive p-0'>
+                {items}
+            </div>
+            <div class='card-footer'>
+                <div class='d-flex justify-content-between align-items-center'>
+                    {summary}
+                    {pager}
+                </div>
+            </div>
+        </div>",
+        'pager' => [
+            'class' => \yii\bootstrap5\LinkPager::class,
+            'options' => ['class' => 'pagination pagination-sm m-0 float-right'],
+            'linkContainerOptions' => ['class' => 'page-item'],
+            'linkOptions' => ['class' => 'page-link'],
+        ],
+    ]); ?>
+
+
+</div>
