@@ -32,7 +32,7 @@ class ProgramUserRoleForm extends ProgramUserRole
 
             // ['end_date', 'required', 'message' => 'END_DATE_REQUIRED'],
             // ['end_date', 'date', 'format' => 'php:Y-m-d', 'message' => 'INVALID_END_DATE'],
-           
+
         ];
     }
 
@@ -50,10 +50,15 @@ class ProgramUserRoleForm extends ProgramUserRole
     {
         return self::find()->where(['user_id' => $userId, 'program_id' => $programId])->exists();
     }
-    
+
     public static function existProgramUserRoleProgrammer(int $userId, int $programId)
     {
         return self::find()->where(['user_id' => $userId, 'program_id' => $programId, 'role' => self::ROLE_PROGRAMMER])->exists();
+    }
+
+    public static function existProgramUserRoleStaff(int $userId, int $programId)
+    {
+        return self::find()->where(['user_id' => $userId, 'program_id' => $programId, 'role' => self::ROLE_STAFF])->exists();
     }
 
     public static function findProgramUserRole(int $userId, int $programId)
@@ -63,7 +68,7 @@ class ProgramUserRoleForm extends ProgramUserRole
 
     public static function addRole(int $userId, int $programId, string $role = self::ROLE_PROGRAMMER)
     {
-        if(self::existProgramUserRole($userId, $programId)) {
+        if (self::existProgramUserRole($userId, $programId)) {
             throw new ApiException('PROGRAM_USER_ROLE_EXIST');
         }
 

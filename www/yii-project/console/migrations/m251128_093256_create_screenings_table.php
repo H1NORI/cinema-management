@@ -13,8 +13,7 @@ class m251128_093256_create_screenings_table extends Migration
             'id' => $this->primaryKey(),
             'program_id' => $this->integer()->notNull(),
 
-            'state' => "ENUM('CREATED','SUBMITTED','REVIEWED','APPROVED','SCHEDULED','REJECTED')
-                        NOT NULL DEFAULT 'CREATED'",
+            'state' => $this->tinyInteger()->notNull(),
 
             // film info
             'film_title' => $this->string(),

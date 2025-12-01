@@ -2,14 +2,16 @@
 
 namespace common\models;
 
+use common\components\DataLogBehavior;
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "screenings".
  *
  * @property int $id
  * @property int $program_id
- * @property string $state
+ * @property int $state
  * @property string|null $film_title
  * @property string|null $film_cast
  * @property string|null $film_genres
@@ -34,12 +36,22 @@ class Screening extends \yii\db\ActiveRecord
     /**
      * ENUM field values
      */
-    const STATE_CREATED = 'CREATED';
-    const STATE_SUBMITTED = 'SUBMITTED';
-    const STATE_REVIEWED = 'REVIEWED';
-    const STATE_APPROVED = 'APPROVED';
-    const STATE_SCHEDULED = 'SCHEDULED';
-    const STATE_REJECTED = 'REJECTED';
+    const STATE_CREATED = 0;
+    const STATE_SUBMITTED = 1;
+    const STATE_REVIEWED = 2;
+    const STATE_APPROVED = 3;
+    const STATE_SCHEDULED = 4;
+    const STATE_REJECTED = 5;
+
+
+    //TODO rewrite transitions
+    public static array $allowedStateTransitions = [
+        self::STATE_CREATED => [self::STATE_SUBMITTED],
+        self::STATE_SUBMITTED => [self::STATE_REVIEWED],
+        self::STATE_REVIEWED => [self::STATE_APPROVED],
+        self::STATE_APPROVED => [self::STATE_SCHEDULED],
+        self::STATE_SCHEDULED => [self::STATE_REJECTED],
+    ];
 
     /**
      * {@inheritdoc}
@@ -49,6 +61,14 @@ class Screening extends \yii\db\ActiveRecord
         return 'screenings';
     }
 
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
+            DataLogBehavior::class
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -56,10 +76,10 @@ class Screening extends \yii\db\ActiveRecord
     {
         return [
             [['film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time', 'handler_id'], 'default', 'value' => null],
-            [['state'], 'default', 'value' => 'CREATED'],
+            [['state'], 'default', 'value' => self::STATE_CREATED],
             [['program_id', 'submitter_id', 'created_at', 'updated_at'], 'required'],
             [['program_id', 'film_duration', 'submitter_id', 'handler_id', 'created_at', 'updated_at'], 'integer'],
-            [['state', 'film_cast'], 'string'],
+            [['film_cast'], 'string'],
             [['start_time', 'end_time'], 'safe'],
             [['film_title', 'film_genres', 'auditorium'], 'string', 'max' => 255],
             ['state', 'in', 'range' => array_keys(self::optsState())],

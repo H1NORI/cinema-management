@@ -63,14 +63,13 @@ return [
                         'PUT <id:\d+>/update-state' => 'update-state',
                     ],
                 ],
-                // [
-                //     'class' => 'yii\rest\UrlRule',
-                //     'controller' => ['v1/task'],
-                //     'pluralize' => false,
-                //     'extraPatterns' => [
-                //         'POST toggle/<id:\d+>' => 'toggle',
-                //     ],
-                // ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => ['v1/screening'],
+                    'pluralize' => false,
+                    'extraPatterns' => [
+                    ],
+                ],
                 // [
                 //     'class' => 'yii\rest\UrlRule',
                 //     'controller' => ['v1/group'],

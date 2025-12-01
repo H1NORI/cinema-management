@@ -41,38 +41,22 @@ class ErrorStandarts extends Component
             'code' => 1008,
             'message' => 'Name cannot be empty',
         ],
-        // 'START_AT_REQUIRED' => [
-        //     'code' => 1009,
-        //     'message' => 'Start at cannot be empty',
-        // ],
-        // 'END_AT_REQUIRED' => [
-        //     'code' => 1010,
-        //     'message' => 'End at cannot be empty',
-        // ],
-        // 'DAYS_OF_WEEK_REQUIRED' => [
-        //     'code' => 1011,
-        //     'message' => 'Days of week cannot be empty',
-        // ],
-        // 'STATUS_REQUIRED' => [
-        //     'code' => 1012,
-        //     'message' => 'Status cannot be empty',
-        // ],
-        // 'PRIORITY_REQUIRED' => [
-        //     'code' => 1013,
-        //     'message' => 'Priority cannot be empty',
-        // ],
-        // 'OTHER_USER_ID_REQUIRED' => [
-        //     'code' => 1014,
-        //     'message' => 'Other user id cannot be empty',
-        // ],
-        // 'GROUP_ID_REQUIRED' => [
-        //     'code' => 1015,
-        //     'message' => 'Group ID cannot be empty',
-        // ],
-        // 'VISIBILITY_REQUIRED' => [
-        //     'code' => 1016,
-        //     'message' => 'Visibility cannot be empty',
-        // ],
+        'PROGRAM_ID_REQUIRED' => [
+            'code' => 1009,
+            'message' => 'Program ID cannot be empty',
+        ],
+        'START_TIME_REQUIRED' => [
+            'code' => 1010,
+            'message' => 'Start time cannot be empty',
+        ],
+        'END_TIME_REQUIRED' => [
+            'code' => 1011,
+            'message' => 'End time cannot be empty',
+        ],
+        'HANDLER_ID_REQUIRED' => [
+            'code' => 1012,
+            'message' => 'Handler ID cannot be empty',
+        ],
 
         // 2XXX - invalid data
         'INVALID_PASSWORD' => [
@@ -91,18 +75,18 @@ class ErrorStandarts extends Component
             'code' => 2004,
             'message' => 'Invalid end date format',
         ],
-        // 'INVALID_DAYS_OF_WEEK' => [
-        //     'code' => 2005,
-        //     'message' => 'Days of week is not in range',
-        // ],
-        // 'INVALID_START_AT' => [
-        //     'code' => 2006,
-        //     'message' => 'Invalid start at format, should be hh:mm:ss',
-        // ],
-        // 'INVALID_END_AT' => [
-        //     'code' => 2007,
-        //     'message' => 'Invalid end at format, should be hh:mm:ss',
-        // ],
+        'INVALID_PROGRAM_ID_TYPE' => [
+            'code' => 2005,
+            'message' => 'Invalid program ID type',
+        ],
+        'INVALID_START_TIME' => [
+            'code' => 2006,
+            'message' => 'Invalid start time format',
+        ],
+        'INVALID_END_TIME' => [
+            'code' => 2007,
+            'message' => 'Invalid end time format',
+        ],
         // 'INVALID_STATUS' => [
         //     'code' => 2008,
         //     'message' => 'Status is not in range',
@@ -201,6 +185,14 @@ class ErrorStandarts extends Component
             'code' => 5002,
             'message' => 'Program does not exist',
         ],
+        'PROGRAM_USER_ROLE_DOESNT_EXIST' => [
+            'code' => 5003,
+            'message' => 'Program user role does not exist',
+        ],
+        'SCREENING_DOESNT_EXIST' => [
+            'code' => 5004,
+            'message' => 'Program does not exist',
+        ],
 
         // 7XXX - state based errors
         'CANT_CHANGE_WHEN_ANNOUNCED' => [
@@ -219,6 +211,22 @@ class ErrorStandarts extends Component
             'code' => 7004,
             'message' => 'Program cannot transition to that state',
         ],
+        'CAN_CHABGE_ONLY_WHEN_CREATED' => [
+            'code' => 7005,
+            'message' => 'Can change screening only when state is CREATED',
+        ],
+        'PROGRAM_NOT_IN_SUBMISSION' => [
+            'code' => 7006,
+            'message' => 'Program is not in SUBMISION state',
+        ],
+        'PROGRAM_NOT_IN_ASSIGNMENT' => [
+            'code' => 7007,
+            'message' => 'Program is not in ASSIGNMENT state',
+        ],
+        'CAN_CHABGE_ONLY_WHEN_SUBMITTED' => [
+            'code' => 7008,
+            'message' => 'Can change screening only when state is SUBMITTED',
+        ],
 
         // 8XXX - role based errors
         'ADMIN_CANT_MANAGE_PROGRAM' => [
@@ -229,7 +237,10 @@ class ErrorStandarts extends Component
             'code' => 8002,
             'message' => 'Programmer role required to make this action',
         ],
-
+        'ADMIN_CANT_MANAGE_SCREENING' => [
+            'code' => 8003,
+            'message' => 'Admin cannot manage screening',
+        ],
 
         // 9XXX - errors connected to DB
         'ERROR_SAVING_PROGRAM' => [
@@ -243,6 +254,14 @@ class ErrorStandarts extends Component
         'ERROR_SAVING_PROGRAM_USER_ROLE' => [
             'code' => 9003,
             'message' => 'Error saving program user role',
+        ],
+        'ERROR_SAVING_SCREENING' => [
+            'code' => 9004,
+            'message' => 'Error saving screening',
+        ],
+        'ERROR_DELETING_SCREENING' => [
+            'code' => 9005,
+            'message' => 'Error deleting screening',
         ],
 
         'UNEXPECTED_ERROR' => [
