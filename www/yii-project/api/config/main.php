@@ -26,7 +26,9 @@ return [
         ],
         'user' => [
             'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => false,
+            'enableSession' => false,
+            'loginUrl' => null,
             'identityCookie' => ['name' => '_identity-api', 'httpOnly' => true],
         ],
         'session' => [
@@ -51,14 +53,16 @@ return [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
-                // [
-                //     'class' => 'yii\rest\UrlRule',
-                //     'controller' => ['v1/focus-schedule'],
-                //     'pluralize' => false,
-                //     'extraPatterns' => [
-                //         'POST toggle/<id:\d+>' => 'toggle',
-                //     ],
-                // ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => ['v1/program'],
+                    'pluralize' => false,
+                    'extraPatterns' => [
+                        'PUT <id:\d+>/add-programmer' => 'add-programmer',
+                        'PUT <id:\d+>/add-staff' => 'add-staff',
+                        'PUT <id:\d+>/update-state' => 'update-state',
+                    ],
+                ],
                 // [
                 //     'class' => 'yii\rest\UrlRule',
                 //     'controller' => ['v1/task'],

@@ -18,16 +18,7 @@ class m251128_093141_create_programs_table extends Migration
             'start_date' => $this->date()->notNull(),
             'end_date' => $this->date()->notNull(),
 
-            'state' => "ENUM(
-                'CREATED',
-                'SUBMISSION',
-                'ASSIGNMENT',
-                'REVIEW',
-                'SCHEDULING',
-                'FINAL_PUBLICATION',
-                'DECISION',
-                'ANNOUNCED'
-            ) NOT NULL DEFAULT 'CREATED'",
+            'state' => $this->tinyInteger()->notNull(),
 
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),

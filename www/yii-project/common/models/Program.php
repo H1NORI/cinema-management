@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\DataLogBehavior;
+use common\exceptions\ApiException;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 
@@ -15,7 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $description
  * @property string $start_date
  * @property string $end_date
- * @property string $state
+ * @property int $state
  * @property int $created_at
  * @property int $updated_at
  *
@@ -30,14 +31,24 @@ class Program extends \yii\db\ActiveRecord
     /**
      * ENUM field values
      */
-    const STATE_CREATED = 'CREATED';
-    const STATE_SUBMISSION = 'SUBMISSION';
-    const STATE_ASSIGNMENT = 'ASSIGNMENT';
-    const STATE_REVIEW = 'REVIEW';
-    const STATE_SCHEDULING = 'SCHEDULING';
-    const STATE_FINAL_PUBLICATION = 'FINAL_PUBLICATION';
-    const STATE_DECISION = 'DECISION';
-    const STATE_ANNOUNCED = 'ANNOUNCED';
+    const STATE_CREATED = 0;
+    const STATE_SUBMISSION = 1;
+    const STATE_ASSIGNMENT = 2;
+    const STATE_REVIEW = 3;
+    const STATE_SCHEDULING = 4;
+    const STATE_FINAL_PUBLICATION = 5;
+    const STATE_DECISION = 6;
+    const STATE_ANNOUNCED = 7;
+
+    public static array $allowedStateTransitions = [
+        self::STATE_CREATED => [self::STATE_SUBMISSION],
+        self::STATE_SUBMISSION => [self::STATE_ASSIGNMENT],
+        self::STATE_ASSIGNMENT => [self::STATE_REVIEW],
+        self::STATE_REVIEW => [self::STATE_SCHEDULING],
+        self::STATE_SCHEDULING => [self::STATE_FINAL_PUBLICATION],
+        self::STATE_FINAL_PUBLICATION => [self::STATE_DECISION],
+        self::STATE_DECISION => [self::STATE_ANNOUNCED],
+    ];
 
     /**
      * {@inheritdoc}
@@ -61,10 +72,10 @@ class Program extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['state'], 'default', 'value' => 'CREATED'],
+            [['state'], 'default', 'value' => self::STATE_CREATED],
             [['created_by', 'name', 'description', 'start_date', 'end_date', 'created_at', 'updated_at'], 'required'],
-            [['created_by', 'created_at', 'updated_at'], 'integer'],
-            [['description', 'state'], 'string'],
+            [['created_by', 'created_at', 'updated_at', 'state'], 'integer'],
+            [['description'], 'string'],
             [['start_date', 'end_date'], 'safe'],
             [['name'], 'string', 'max' => 255],
             ['state', 'in', 'range' => array_keys(self::optsState())],

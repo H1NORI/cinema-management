@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\modules\v1\models\ProgramForm;
+use api\modules\v1\models\ProgramUserRoleForm;
 use common\exceptions\ApiException;
 use Yii;
 use api\modules\v1\controllers\ApiController;
@@ -15,49 +16,73 @@ class ProgramController extends ApiController
 
         $behaviors['authenticator'] = [
             'class' => \kaabar\jwt\JwtHttpBearerAuth::class,
-            'except' => [
-                // 'index',
+            'optional' => [
+                'index',
+                'search',
+                'view',
             ],
         ];
 
         return $behaviors;
     }
 
-    // public function actionIndex()
-    // {
-    //     $programs = ProgramForm::findUserPrograms(Yii::$app->user->id);
+    public function actionIndex()
+    {
+        $programs = ProgramForm::findUserPrograms(Yii::$app->user->id);
 
-    //     return [
-    //         'success' => true,
-    //         'message' => 'Programs retrived',
-    //         'data' => [
-    //             'programs' => $programs,
-    //         ],
-    //     ];
-    // }
+        return [
+            'success' => true,
+            'message' => 'Programs retrived',
+            'data' => [
+                'programs' => $programs,
+            ],
+        ];
+    }
 
-    // public function actionView($id)
-    // {
-    //     $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+    public function actionSearch()
+    {
+        $model = new ProgramForm();
+        $model->scenario = 'search';
+        
+        $programs = $model->search(['ProgramForm' => $this->request->queryParams]);
 
-    //     if ($model == null) {
-    //         throw new ApiException('TASK_DOESNT_EXIST');
-    //     }
+        return [
+            'success' => true,
+            'message' => 'Programs retrived',
+            'data' => [
+                'programs' => $programs,
+            ],
+        ];
+    }
 
-    //     return [
-    //         'success' => true,
-    //         'message' => 'Program retrived',
-    //         'data' => [
-    //             'program' => $model,
-    //         ],
-    //     ];
-    // }
+    public function actionView($id)
+    {
+        $model = ProgramForm::findOne($id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $id)->role : null;
+
+        return [
+            'success' => true,
+            'message' => 'Program retrived',
+            'data' => [
+                'program' => $model->toPublicArray($userRole),
+            ],
+        ];
+    }
 
     public function actionCreate()
     {
         $model = new ProgramForm();
 
         $model->scenario = 'create';
+
+        if (Yii::$app->user->identity->isRoleAdmin()) {
+            throw new ApiException('ADMIN_CANT_MANAGE_PROGRAM');
+        }
 
         $model->load(['ProgramForm' => Yii::$app->request->post()]);
         if ($model->createProgram(Yii::$app->user->id)) {
@@ -73,86 +98,140 @@ class ProgramController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
-    // public function actionUpdate($id)
-    // {
-    //     $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+    public function actionUpdate($id)
+    {
+        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
-    //     if ($model == null) {
-    //         throw new ApiException('TASK_DOESNT_EXIST');
-    //     }
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
 
-    //     $model->scenario = 'update';
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
 
-    //     $model->load(['ProgramForm' => Yii::$app->request->post()]);
-    //     if ($model->updateProgram()) {
-    //         return [
-    //             'success' => true,
-    //             'message' => 'Program updated successfully',
-    //             'data' => [
-    //                 'program' => $model,
-    //             ],
-    //         ];
-    //     }
+        $model->scenario = 'update';
 
-    //     //todo add unexpected error
-    //     return [
-    //         'success' => false,
-    //         'message' => 'Failed to update program',
-    //         'data' => $model->errors,
-    //     ];
-    // }
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->updateProgram()) {
+            return [
+                'success' => true,
+                'message' => 'Program updated successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
 
-    // public function actionDelete($id)
-    // {
-    //     $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
 
-    //     if ($model == null) {
-    //         throw new ApiException('TASK_DOESNT_EXIST');
-    //     }
 
-    //     $model->load(['ProgramForm' => Yii::$app->request->post()]);
-    //     if ($model->deleteProgram()) {
-    //         return [
-    //             'success' => true,
-    //             'message' => 'Program deleted successfully',
-    //             'data' => [],
-    //         ];
-    //     }
+    public function actionAddProgrammer($id)
+    {
+        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
-    //     //todo add unexpected error
-    //     return [
-    //         'success' => false,
-    //         'message' => 'Failed to delete program',
-    //         'data' => $model->errors,
-    //     ];
-    // }
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
 
-    // // todo remake for POST request
-    // public function actionToggle($id)
-    // {
-    //     $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
 
-    //     if ($model == null) {
-    //         throw new ApiException('TASK_DOESNT_EXIST');
-    //     }
+        $model->scenario = 'add-programmer';
 
-    //     $model->scenario = 'toggle';
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->addProgrammer()) {
+            return [
+                'success' => true,
+                'message' => 'Program updated successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
 
-    //     if ($model->toggleProgram()) {
-    //         return [
-    //             'success' => true,
-    //             'message' => 'Program toggled successfully',
-    //             'data' => [
-    //                 'program' => $model
-    //             ],
-    //         ];
-    //     }
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
 
-    //     //todo add unexpected error
-    //     return [
-    //         'success' => false,
-    //         'message' => 'Failed to toggle program',
-    //         'data' => $model->errors,
-    //     ];
-    // }
+    public function actionAddStaff($id)
+    {
+        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
+        $model->scenario = 'add-staff';
+
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->addStaff()) {
+            return [
+                'success' => true,
+                'message' => 'Program updated successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+    public function actionDelete($id)
+    {
+        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->deleteProgram()) {
+            return [
+                'success' => true,
+                'message' => 'Program deleted successfully',
+                'data' => [],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+
+    public function actionUpdateState($id)
+    {
+        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
+        if ($model->updateState()) {
+            return [
+                'success' => true,
+                'message' => 'Program state updated successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+
 }
