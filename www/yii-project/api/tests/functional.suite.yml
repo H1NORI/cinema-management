@@ -1,5 +1,10 @@
 suite_namespace: api\tests\functional
 actor: FunctionalTester
 modules:
-    enabled:
-        - Yii2
+  enabled:
+    - Yii2:
+        configFile: api/config/test.php
+    - REST:
+        depends: Yii2
+        url: http://api.cinema/v1
+    - Asserts
