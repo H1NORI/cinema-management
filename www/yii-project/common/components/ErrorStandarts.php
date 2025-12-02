@@ -57,6 +57,18 @@ class ErrorStandarts extends Component
             'code' => 1012,
             'message' => 'Handler ID cannot be empty',
         ],
+        'SCORE_REQUIRED' => [
+            'code' => 1013,
+            'message' => 'Score cannot be empty',
+        ],
+        'COMMENTS_REQUIRED' => [
+            'code' => 1014,
+            'message' => 'Comments cannot be empty',
+        ],
+        'REJECTION_REASON_REQUIRED' => [
+            'code' => 1015,
+            'message' => 'Rejection reason cannot be empty',
+        ],
 
         // 2XXX - invalid data
         'INVALID_PASSWORD' => [
@@ -87,10 +99,10 @@ class ErrorStandarts extends Component
             'code' => 2007,
             'message' => 'Invalid end time format',
         ],
-        // 'INVALID_STATUS' => [
-        //     'code' => 2008,
-        //     'message' => 'Status is not in range',
-        // ],
+        'INVALID_SCORE_TYPE' => [
+            'code' => 2008,
+            'message' => 'Invalid score type',
+        ],
         'INVALID_NAME' => [
             'code' => 2009,
             'message' => 'Invalid name format',
@@ -107,50 +119,14 @@ class ErrorStandarts extends Component
             'code' => 2012,
             'message' => 'Role is not in range',
         ],
-        // 'INVALID_START_AT_GREATER_END_AT' => [
-        //     'code' => 2011,
-        //     'message' => 'Start at cannot be greater than End at',
-        // ],
-        // 'INVALID_DESCRIPTION' => [
-        //     'code' => 2012,
-        //     'message' => 'Invalid description format',
-        // ],
-        // 'INVALID_PRIORITY' => [
-        //     'code' => 2013,
-        //     'message' => 'Priority is not in range',
-        // ],
-        // 'INVALID_STATUS_TYPE' => [
-        //     'code' => 2014,
-        //     'message' => 'Status should be integer',
-        // ],
-        // 'INVALID_PRIORITY_TYPE' => [
-        //     'code' => 2015,
-        //     'message' => 'Priority should be integer',
-        // ],
-        // 'INVALID_RELATIONSHIP_SAME_USERS' => [
-        //     'code' => 2016,
-        //     'message' => 'Current user and other user cannot be the same',
-        // ],
-        // 'INVALID_OTHER_USER_ID_TYPE' => [
-        //     'code' => 2017,
-        //     'message' => 'Other user ID should be integer',
-        // ],
-        // 'INVALID_RELATIONSHIP_SAME_USER' => [
-        //     'code' => 2018,
-        //     'message' => 'This request cannot be accepted',
-        // ],
-        // 'INVALID_ROLE' => [
-        //     'code' => 2019,
-        //     'message' => 'Role is not in range',
-        // ],
-        // 'INVALID_VISIBILITY_TYPE' => [
-        //     'code' => 2020,
-        //     'message' => 'Visibility should be integer',
-        // ],
-        // 'INVALID_VISIBILITY' => [
-        //     'code' => 2021,
-        //     'message' => 'Visibility is not in range',
-        // ],
+        'INVALID_COMMENTS_TYPE' => [
+            'code' => 2013,
+            'message' => 'Invalid comments type',
+        ],
+        'INVALID_REJECTION_REASON_TYPE' => [
+            'code' => 2014,
+            'message' => 'Invalid rejection reason type',
+        ],
 
         // 3XXX - data is already taken
         'EMAIL_TAKEN' => [
@@ -174,6 +150,10 @@ class ErrorStandarts extends Component
         'PROGRAM_USER_ROLE_EXIST' => [
             'code' => 4002,
             'message' => 'Program user role already exist',
+        ],
+        'PROGRAM_SCREENING_REVIEW_EXIST' => [
+            'code' => 4003,
+            'message' => 'Screening review already exist',
         ],
 
         // 5XXX - data does not exist
@@ -227,6 +207,26 @@ class ErrorStandarts extends Component
             'code' => 7008,
             'message' => 'Can change screening only when state is SUBMITTED',
         ],
+        'PROGRAM_NOT_IN_REVIEW' => [
+            'code' => 7009,
+            'message' => 'Program is not in REVIEW state',
+        ],
+        'PROGRAM_NOT_IN_SCHEDULING_OR_DECISION' => [
+            'code' => 7010,
+            'message' => 'Program is not in SCHEDULING or DECISION state',
+        ],
+        'CAN_CHABGE_ONLY_WHEN_REVIWED' => [
+            'code' => 7011,
+            'message' => 'Can change screening only when state is REVIEWED',
+        ],
+        'PROGRAM_NOT_IN_FINAL_PUBLICATION' => [
+            'code' => 7012,
+            'message' => 'Program is not in FINAL_PUBLICATION state',
+        ],
+        'CAN_CHABGE_ONLY_WHEN_APPROVED' => [
+            'code' => 7013,
+            'message' => 'Can change screening only when state is APPROVED',
+        ],
 
         // 8XXX - role based errors
         'ADMIN_CANT_MANAGE_PROGRAM' => [
@@ -262,6 +262,10 @@ class ErrorStandarts extends Component
         'ERROR_DELETING_SCREENING' => [
             'code' => 9005,
             'message' => 'Error deleting screening',
+        ],
+        'ERROR_SAVING_SCREENING_REVIEW' => [
+            'code' => 9006,
+            'message' => 'Error saving screening review',
         ],
 
         'UNEXPECTED_ERROR' => [

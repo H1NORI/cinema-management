@@ -28,6 +28,8 @@ class m251128_093256_create_screenings_table extends Migration
             'start_time' => $this->dateTime(),
             'end_time' => $this->dateTime(),
 
+            'rejection_reason' => $this->text(),
+
             // roles
             'submitter_id' => $this->integer()->notNull(),
             'handler_id' => $this->integer(),

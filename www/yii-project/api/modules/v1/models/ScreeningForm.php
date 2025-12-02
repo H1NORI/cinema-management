@@ -5,6 +5,7 @@ namespace api\modules\v1\models;
 use common\exceptions\ApiException;
 use common\models\Program;
 use common\models\Screening;
+use common\models\ScreeningReview;
 use common\models\User;
 use Throwable;
 use Yii;
@@ -13,6 +14,9 @@ class ScreeningForm extends Screening
 {
 
     public $user_id;
+    public $score;
+    public $comments;
+
 
     public function rules()
     {
@@ -42,8 +46,8 @@ class ScreeningForm extends Screening
 
             ['program_id', 'required', 'on' => ['create', 'update'], 'message' => 'PROGRAM_ID_REQUIRED'],
             ['program_id', 'integer', 'message' => 'INVALID_PROGRAM_ID_TYPE'],
-            
-            ['handler_id', 'required', 'on' => ['assign-handler', ], 'message' => 'HANDLER_ID_REQUIRED'],
+
+            ['handler_id', 'required', 'on' => ['assign-handler',], 'message' => 'HANDLER_ID_REQUIRED'],
 
             // ['description', 'default', 'value' => null],
             // ['description', 'string', 'message' => 'INVALID_DESCRIPTION'],
@@ -54,6 +58,17 @@ class ScreeningForm extends Screening
 
             ['end_time', 'required', 'on' => ['create', 'update'], 'message' => 'END_DATE_REQUIRED'],
             ['end_time', 'date', 'format' => 'php:Y-m-d H:i:s', 'message' => 'INVALID_END_DATE'],
+
+
+            //TODO maybe I needd to add some scopes
+            ['score', 'required', 'on' => ['review',], 'message' => 'SCORE_REQUIRED'],
+            ['score', 'integer', 'message' => 'INVALID_SCORE_TYPE'],
+
+            ['comments', 'required', 'on' => ['review',], 'message' => 'COMMENTS_REQUIRED'],
+            ['comments', 'string', 'message' => 'INVALID_COMMENTS_TYPE'],
+
+            ['rejection_reason', 'required', 'on' => ['reject',], 'message' => 'REJECTION_REASON_REQUIRED'],
+            ['rejection_reason', 'string', 'message' => 'INVALID_REJECTION_REASON_TYPE'],
 
             // ['status', 'default', 'value' => self::STATUS_INACTIVE],
             // ['status', 'integer', 'message' => 'INVALID_STATUS_TYPE'],
@@ -77,7 +92,8 @@ class ScreeningForm extends Screening
         $scenarios['update'] = ['film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time'];
 
         $scenarios['assign-handler'] = ['handler_id'];
-        // $scenarios['add-staff'] = ['user_id'];
+
+        $scenarios['review'] = ['score', 'commnets'];
 
         // $scenarios['update-state'] = ['user_id'];
 
@@ -94,6 +110,11 @@ class ScreeningForm extends Screening
     public static function findUserScreening(int $userId, int $id)
     {
         return self::findOne(['id' => $id, 'submitter_id' => $userId]);
+    }
+
+    public static function findHandlerScreening(int $userId, int $id)
+    {
+        return self::findOne(['id' => $id, 'handler_id' => $userId]);
     }
 
     public function createScreening(int $userId)
@@ -130,7 +151,7 @@ class ScreeningForm extends Screening
         }
 
         if (!$this->save(false)) {
-            throw new ApiException('ERROR_SAVING_PROGRAM');
+            throw new ApiException('ERROR_SAVING_SCREENING');
         }
 
         return true;
@@ -164,7 +185,7 @@ class ScreeningForm extends Screening
         }
 
         if (!$this->save(false)) {
-            throw new ApiException('ERROR_SAVING_PROGRAM');
+            throw new ApiException('ERROR_SAVING_SCREENING');
         }
 
         return true;
@@ -189,7 +210,6 @@ class ScreeningForm extends Screening
         return true;
     }
 
-    //TODO check if programmer assigns 
     public function assignScreeningHandler()
     {
         $program = Program::findOne($this->program_id);
@@ -211,58 +231,151 @@ class ScreeningForm extends Screening
         }
 
         if (!$this->save(false)) {
-            throw new ApiException('ERROR_SAVING_PROGRAM');
+            throw new ApiException('ERROR_SAVING_SCREENING');
         }
 
         return true;
     }
 
-    
+    public function reviewScreening()
+    {
+        $program = Program::findOne($this->program_id);
 
-    // public function search($params, $formName = null)
-    // {
-    //     $query = self::find();
+        if (!$program || $program->state !== Program::STATE_REVIEW) {
+            throw new ApiException('PROGRAM_NOT_IN_REVIEW');
+        }
 
-    //     $this->load($params, $formName);
+        if (!$this->isStateSubmitted()) {
+            throw new ApiException('CAN_CHABGE_ONLY_WHEN_SUBMITTED');
+        }
 
-    //     // $this->pageSize = (int) ($this->pageSize ?: 20);
+        if (!ProgramUserRoleForm::existProgramUserRoleStaff($this->handler_id, $this->program_id)) {
+            throw new ApiException('PROGRAM_USER_ROLE_DOESNT_EXIST');
+        }
 
-    //     // add conditions that should always apply here
-    //     // $dataProvider = new ActiveDataProvider([
-    //     //     'query' => $query,
-    //     //     'pagination' => [
-    //     //         'pageSize' => $this->pageSize,
-    //     //     ],
-    //     // ]);
+        if (!$this->canTransitionToNextState()) {
+            throw new ApiException('INVALID_STATE_TRANSITION');
+        }
 
-    //     if (!$this->validate()) {
-    //         return [];
-    //     }
+        $this->state += 1;
 
-    //     // TODO Screening search: It shall be possible to search screenings by name, description, dates, film title,
-    //     // auditorium with AND semantics (when the previously mentioned parameters have values
-    //     // supplied to them, then they are AND combined meaning that all these conditions must be
-    //     // satisfied in order to return the respective screening.). If no criteria are supplied, then all
-    //     // screenings must be returned. In any case, the results must be filtered by role and then sorted
-    //     // first by date and then by name.
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
 
-    //     $query->andFilterWhere(['like', 'name', $this->name])
-    //         ->andFilterWhere(['like', 'description', $this->description]);
-    //     // ->andFilterWhere(['like', 'start_date', $this->start_date])
-    //     // ->andFilterWhere(['like', 'end_date', $this->end_date]);
+        $transaction = Yii::$app->db->beginTransaction();
 
-    //     if ($this->start_date) {
-    //         $query->andWhere(['>=', 'start_date', $this->start_date]);
-    //     }
+        try {
+            if (!$this->save(false)) {
+                throw new ApiException('ERROR_SAVING_SCREENING');
+            }
 
-    //     if ($this->end_date) {
-    //         $query->andWhere(['<=', 'end_date', $this->end_date]);
-    //     }
+            ScreeningReviewForm::addReview($this->handler_id, $this->id, $this->score, $this->comments);
+            $transaction->commit();
+            return true;
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
 
-    //     $query->orderBy(['start_date' => SORT_ASC, 'name' => SORT_ASC]);
+    //TODO add Automatic by system: In DECISION, any approved but not finally submitted screening is auto-rejected.  
+    public function rejectScreening()
+    {
+        $program = Program::findOne($this->program_id);
 
-    //     return $query->all();
-    // }
+        if (!$program || !($program->state === Program::STATE_SCHEDULING || $program->state === Program::STATE_DECISION)) {
+            throw new ApiException('PROGRAM_NOT_IN_SCHEDULING_OR_DECISION');
+        }
+
+        //todo not sure about this IF STATEMENT
+        if (!$this->isStateReviewed()) {
+            throw new ApiException('CAN_CHABGE_ONLY_WHEN_REVIWED');
+        }
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_SCREENING');
+        }
+
+        return true;
+    }
+
+    public function finalSubmitScreening()
+    {
+        if (!$this->isStateApproved()) {
+            throw new ApiException('CAN_CHABGE_ONLY_WHEN_APPROVED');
+        }
+
+        $program = Program::findOne($this->program_id);
+
+        if (!$program || $program->state !== Program::STATE_FINAL_PUBLICATION) {
+            throw new ApiException('PROGRAM_NOT_IN_FINAL_PUBLICATION');
+        }
+
+        if (!$this->canTransitionToNextState()) {
+            throw new ApiException('INVALID_STATE_TRANSITION');
+        }
+
+        $this->state += 1;
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_SCREENING');
+        }
+
+        return true;
+    }
+
+    public function search($params, $formName = null)
+    {
+        $query = self::find();
+
+        $this->load($params, $formName);
+
+        // $this->pageSize = (int) ($this->pageSize ?: 20);
+
+        // add conditions that should always apply here
+        // $dataProvider = new ActiveDataProvider([
+        //     'query' => $query,
+        //     'pagination' => [
+        //         'pageSize' => $this->pageSize,
+        //     ],
+        // ]);
+
+        if (!$this->validate()) {
+            return [];
+        }
+
+        // TODO Screening search: It shall be possible to search screenings by name, description, dates, film title,
+        // auditorium with AND semantics (when the previously mentioned parameters have values
+        // supplied to them, then they are AND combined meaning that all these conditions must be
+        // satisfied in order to return the respective screening.). If no criteria are supplied, then all
+        // screenings must be returned. In any case, the results must be filtered by role and then sorted
+        // first by date and then by name.
+
+        $query->andFilterWhere(['like', 'film_title', $this->film_title])
+            ->andFilterWhere(['like', 'film_cast', $this->film_cast])
+            ->andFilterWhere(['like', 'film_genres', $this->film_genres]);
+
+        if ($this->start_time) {
+            $query->andWhere(['>=', 'start_time', $this->start_time]);
+        }
+
+        if ($this->end_time) {
+            $query->andWhere(['<=', 'end_time', $this->end_time]);
+        }
+
+        $query->orderBy(['film_genres' => SORT_ASC,  'film_title' => SORT_ASC, 'end_time' => SORT_ASC,]);
+
+        return $query->all();
+    }
 
 
     // public function toPublicArray($role)
@@ -282,24 +395,6 @@ class ScreeningForm extends Screening
     //     }
 
     //     return $data;
-    // }
-
-
-    // public function deleteScreening()
-    // {
-    //     if (!$this->isStateCreated()) {
-    //         throw new ApiException('CAN_DELETE_ONLY_WHEN_CREATED');
-    //     }
-
-    //     if (!$this->validate()) {
-    //         throw ApiException::fromModel($this);
-    //     }
-
-    //     if (!$this->delete()) {
-    //         throw new ApiException('ERROR_DELETING_PROGRAM');
-    //     }
-
-    //     return true;
     // }
 
 

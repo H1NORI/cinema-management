@@ -19,6 +19,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string|null $auditorium
  * @property string|null $start_time
  * @property string|null $end_time
+ * @property string|null $rejection_reason
  * @property int $submitter_id
  * @property int|null $handler_id
  * @property int $created_at
@@ -48,7 +49,7 @@ class Screening extends \yii\db\ActiveRecord
     public static array $allowedStateTransitions = [
         self::STATE_CREATED => [self::STATE_SUBMITTED],
         self::STATE_SUBMITTED => [self::STATE_REVIEWED],
-        self::STATE_REVIEWED => [self::STATE_APPROVED],
+        self::STATE_REVIEWED => [self::STATE_APPROVED, self::STATE_REJECTED],
         self::STATE_APPROVED => [self::STATE_SCHEDULED],
         self::STATE_SCHEDULED => [self::STATE_REJECTED],
     ];
@@ -75,11 +76,11 @@ class Screening extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time', 'handler_id'], 'default', 'value' => null],
+            [['film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time', 'rejection_reason', 'handler_id'], 'default', 'value' => null],
             [['state'], 'default', 'value' => self::STATE_CREATED],
             [['program_id', 'submitter_id', 'created_at', 'updated_at'], 'required'],
             [['program_id', 'film_duration', 'submitter_id', 'handler_id', 'created_at', 'updated_at'], 'integer'],
-            [['film_cast'], 'string'],
+            [['film_cast', 'rejection_reason'], 'string'],
             [['start_time', 'end_time'], 'safe'],
             [['film_title', 'film_genres', 'auditorium'], 'string', 'max' => 255],
             ['state', 'in', 'range' => array_keys(self::optsState())],
