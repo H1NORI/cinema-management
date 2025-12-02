@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace api\modules\v1\models;
 
@@ -9,7 +9,8 @@ use yii\base\Model;
 use common\models\User;
 use common\models\UserToken;
 
-class SigninForm extends Model {
+class SigninForm extends Model
+{
     public $username;
     public $email;
     public $password;
@@ -17,7 +18,8 @@ class SigninForm extends Model {
     public $refreshToken;
     private $_user;
 
-    public function rules() {
+    public function rules()
+    {
         return [
             [['username', 'email', 'password'], 'trim'],
             ['email', 'required', 'on' => ['signin'], 'message' => 'EMAIL_REQUIRED'],
@@ -27,7 +29,8 @@ class SigninForm extends Model {
         ];
     }
 
-    public function signin() { 
+    public function signin()
+    {
         if (!$this->validate()) {
             return false;
         }
@@ -41,7 +44,8 @@ class SigninForm extends Model {
         return $this->getAuthData(true);
     }
 
-    private function getAuthData($sendCode = false) {
+    private function getAuthData($sendCode = false)
+    {
         $this->token = $this->generateJwt($this->_user);
         $this->refreshToken = $this->generateRefreshToken($this->_user);
 
@@ -69,13 +73,14 @@ class SigninForm extends Model {
         return $this->token;
     }
 
-    private function generateJwt($user) {
+    private function generateJwt($user)
+    {
         $jwt = Yii::$app->jwt;
         $signer = $jwt->getSigner('HS256');
         $key = $jwt->getKey();
 
         $now = new DateTimeImmutable();
-        
+
         $jwtParams = Yii::$app->params['jwt'];
 
         $token = $jwt->getBuilder()
@@ -99,7 +104,8 @@ class SigninForm extends Model {
         return $token->toString();
     }
 
-    private function generateRefreshToken($user, $impersonator = null) {
+    private function generateRefreshToken($user, $impersonator = null)
+    {
         $refreshToken = Yii::$app->security->generateRandomString(200);
 
         // TODO: Don't always regenerate - you could reuse existing one if user already has one with same IP and user agent
@@ -111,7 +117,7 @@ class SigninForm extends Model {
             'urf_created' => gmdate('Y-m-d H:i:s'),
         ]);
         if (!$userRefreshToken->save()) {
-            $this->addError('email',1005);
+            $this->addError('email', 1005);
             return false;
         }
 
@@ -128,7 +134,8 @@ class SigninForm extends Model {
         return $userRefreshToken;
     }
 
-    public function validatePassword($attribute, $params) {
+    public function validatePassword($attribute, $params)
+    {
         if (!$this->hasErrors()) {
             $this->_user = $this->getUser();
 
@@ -140,7 +147,8 @@ class SigninForm extends Model {
         }
     }
 
-    protected function getUser() {
+    protected function getUser()
+    {
         if ($this->_user === null) {
             $this->_user = User::findByEmail($this->email);
         }
@@ -148,12 +156,46 @@ class SigninForm extends Model {
         return $this->_user;
     }
 
-    public function getUserId() {
+    public function getUserId()
+    {
         return $this->_user?->id;
     }
 
-    public function getUserEmail() {
+    public function getUserEmail()
+    {
         return $this->_user?->email;
+    }
+
+
+    public static function testGenerateJwt($userId)
+    {
+        $jwt = Yii::$app->jwt;
+        $signer = $jwt->getSigner('HS256');
+        $key = $jwt->getKey();
+
+        $now = new DateTimeImmutable();
+
+        $jwtParams = Yii::$app->params['jwt'];
+
+        $token = $jwt->getBuilder()
+            // Configures the issuer (iss claim)
+            ->issuedBy($jwtParams['issuer'])
+            // Configures the audience (aud claim)
+            ->permittedFor($jwtParams['audience'])
+            // Configures the id (jti claim)
+            ->identifiedBy($jwtParams['id'], true)
+            // Configures the time that the token was issue (iat claim)
+            ->issuedAt($now)
+            // Configures the time that the token can be used (nbf claim)
+            ->canOnlyBeUsedAfter($now->modify($jwtParams['request_time']))
+            // Configures the expiration time of the token (exp claim)
+            ->expiresAt($now->modify($jwtParams['expire']))
+            // Configures a new claim, called "uid"
+            ->withClaim('uid', $userId)
+            // Builds a new token
+            ->getToken($signer, $key);
+
+        return $token->toString();
     }
 
 
