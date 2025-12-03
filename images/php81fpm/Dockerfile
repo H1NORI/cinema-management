@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql intl zip gd \
     && rm -rf /var/lib/apt/lists/*
 
+RUN echo "172.20.0.5 api.cinema" >> /etc/hosts
+
 # Устанавливаем composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer

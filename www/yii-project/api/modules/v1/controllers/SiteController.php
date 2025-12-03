@@ -8,7 +8,8 @@ use yii\web\HttpException;
 
 class SiteController extends ApiController
 {
-    public function behaviors() {
+    public function behaviors()
+    {
         $behaviors = parent::behaviors();
 
         $behaviors['authenticator'] = [
@@ -16,7 +17,7 @@ class SiteController extends ApiController
             'except' => [
                 'index',
                 // 'test-error',
-                // 'test',
+                'token',
             ],
         ];
 
@@ -44,12 +45,13 @@ class SiteController extends ApiController
     }
 
     //TODO added for test purpose only
-    public function actionToken() {
+    public function actionToken()
+    {
         $headers = Yii::$app->request->headers;
-        $authHeader = $headers->get('Authorization');
+        $authHeader = $headers->get(name: 'Authorization');
 
         if (!$authHeader || !preg_match('/^Bearer\s+(.*)$/', $authHeader, $matches)) {
-            return ['success' => false, 'message' => 'Authorization header missing or invalid'];
+            return ['success' => false, 'message' => 'Authorization header missing or invalid', 'header' => $authHeader];
         }
 
         $tokenString = $matches[1];
@@ -61,8 +63,11 @@ class SiteController extends ApiController
             return [
                 'success' => true,
                 'message' => 'Token parsed successfully',
+                'header' => $authHeader,
                 'token' => $token,
-                'claims' => $token->claims()->all(),
+                'received_token' => $tokenString,
+                'claims' => $token && !is_string($token)? $token->claims()->all() : $token,
+                'jwt_key' => Yii::$app->jwt->key,
             ];
         } catch (\Exception $e) {
             return [
@@ -72,5 +77,5 @@ class SiteController extends ApiController
             ];
         }
     }
-    
+
 }

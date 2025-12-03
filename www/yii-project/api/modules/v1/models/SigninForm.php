@@ -187,7 +187,7 @@ class SigninForm extends Model
             // Configures the time that the token was issue (iat claim)
             ->issuedAt($now)
             // Configures the time that the token can be used (nbf claim)
-            ->canOnlyBeUsedAfter($now->modify($jwtParams['request_time']))
+            // ->canOnlyBeUsedAfter($now->modify($jwtParams['request_time']))
             // Configures the expiration time of the token (exp claim)
             ->expiresAt($now->modify($jwtParams['expire']))
             // Configures a new claim, called "uid"

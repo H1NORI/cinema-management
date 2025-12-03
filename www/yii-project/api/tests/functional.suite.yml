@@ -6,17 +6,26 @@
 
 # RUN `build` COMMAND AFTER ADDING/REMOVING MODULES.
 #basic/web/index.php
-class_name: FunctionalTester
+actor: FunctionalTester
+
 modules:
-    enabled:
-      - REST
-#      - Filesystem
-#      - Yii2
-#      - Db
-    config:
-      REST:
+  enabled:
+    - REST:
+        url: http://api.cinema/v1
         depends: PhpBrowser
-        url: 'http://localhost/index-test.php'
+    - PhpBrowser:
+        url: http://api.cinema/v1
+    # - \Helper\Functional
+    - Db:
+        dsn: 'mysql:host=cinema_managment_mysql;dbname=cinema_managment;local_infile=1'
+        user: 'yii'
+        password: 'yii'
+        # cleanup: true
+        # populate: true
+
+  # config:
+  #   REST:
+  #     url: http://api.cinema/v1
 #     Db:
 #       dsn: 'mysql:host=localhost;dbname=test_db'
 #       user: 'test_user'
