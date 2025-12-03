@@ -3,13 +3,16 @@ return [
     'id' => 'app-api-tests',
     'basePath' => dirname(__DIR__),
     'components' => [
-        // 'db' => [
-        //     'class' => 'yii\db\Connection',
-        //     'dsn' => 'mysql:host=127.0.0.1;dbname=test_db', // your test DB
-        //     'username' => 'root',
-        //     'password' => '',
-        //     'charset' => 'utf8',
-        // ],
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=cinema_managment_mysql;dbname=cinema_managment;local_infile=1',
+            'username' => 'yii',
+            'password' => 'yii',
+            'charset' => 'utf8',
+            'attributes' => [
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            ],
+        ],
         'security' => [
             'class' => 'yii\base\Security',
         ],

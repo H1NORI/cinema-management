@@ -145,7 +145,7 @@ class ProgramController extends ApiController
         if ($model->addProgrammer()) {
             return [
                 'success' => true,
-                'message' => 'Program updated successfully',
+                'message' => 'Program programmer added successfully',
                 'data' => [
                     'program' => $model,
                 ],
@@ -173,7 +173,7 @@ class ProgramController extends ApiController
         if ($model->addStaff()) {
             return [
                 'success' => true,
-                'message' => 'Program updated successfully',
+                'message' => 'Program staff added successfully',
                 'data' => [
                     'program' => $model,
                 ],

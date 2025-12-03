@@ -1,11 +1,3 @@
-# Codeception Test Suite Configuration
-
-# suite for functional (integration) tests.
-# emulate web requests and make application process them.
-# (tip: better to use with frameworks).
-
-# RUN `build` COMMAND AFTER ADDING/REMOVING MODULES.
-#basic/web/index.php
 actor: FunctionalTester
 
 modules:
@@ -15,21 +7,10 @@ modules:
         depends: PhpBrowser
     - PhpBrowser:
         url: http://api.cinema/v1
-    # - \Helper\Functional
     - Db:
         dsn: 'mysql:host=cinema_managment_mysql;dbname=cinema_managment;local_infile=1'
         user: 'yii'
         password: 'yii'
-        # cleanup: true
-        # populate: true
-
-  # config:
-  #   REST:
-  #     url: http://api.cinema/v1
-#     Db:
-#       dsn: 'mysql:host=localhost;dbname=test_db'
-#       user: 'test_user'
-#       password: 'test_password'
-#       dump: 'codeception/_data/dump.sql'
-#       populate: true
-#       cleanup: false
+    # - Yii2:
+    #     cleanup: true
+    #     transaction: true
