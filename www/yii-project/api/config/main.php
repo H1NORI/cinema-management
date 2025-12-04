@@ -70,6 +70,14 @@ return [
                     'extraPatterns' => [
                     ],
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => ['v1/user'],
+                    'pluralize' => false,
+                    'extraPatterns' => [
+                        // 'PUT update/<id:\d+>' => 'update',
+                    ],
+                ],
                 // [
                 //     'class' => 'yii\rest\UrlRule',
                 //     'controller' => ['v1/group'],

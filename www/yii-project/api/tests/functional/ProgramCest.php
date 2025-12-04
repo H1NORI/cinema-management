@@ -68,7 +68,7 @@ class ProgramCest
         //     'updated_at' => time(),
         // ]);
 
-        $this->adminJwt = SigninForm::testGenerateJwt($this->adminId);
+        $this->adminJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->programmerId) ?? new User();
         $user->id = $this->programmerId;
@@ -93,7 +93,7 @@ class ProgramCest
         //     'updated_at' => time(),
         // ]);
 
-        $this->programmerJwt = SigninForm::testGenerateJwt($this->programmerId);
+        $this->programmerJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->staffId) ?? new User();
         $user->id = $this->staffId;
@@ -118,7 +118,7 @@ class ProgramCest
         //     'updated_at' => time(),
         // ]);
 
-        $this->staffJwt = SigninForm::testGenerateJwt($this->staffId);
+        $this->staffJwt = SigninForm::generateJwt($user);
 
 
         $user = User::findOne($this->secondProgrammerId) ?? new User();
@@ -131,7 +131,7 @@ class ProgramCest
         $user->status = $user::STATUS_ACTIVE;
         $user->save();
 
-        $this->secondProgrammerJwt = SigninForm::testGenerateJwt($this->secondProgrammerId);
+        $this->secondProgrammerJwt = SigninForm::generateJwt($user);
 
     }
 

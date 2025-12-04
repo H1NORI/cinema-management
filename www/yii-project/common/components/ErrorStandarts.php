@@ -127,6 +127,14 @@ class ErrorStandarts extends Component
             'code' => 2014,
             'message' => 'Invalid rejection reason type',
         ],
+        'INVALID_USERNAME_PATTERN' => [
+            'code' => 2015,
+            'message' => 'Invalid username pattern! starts with a letter, ≥ 5 chars, allowed characters include alphanumeric and underscore',
+        ],
+        'INVALID_PASSWORD_PATTERN' => [
+            'code' => 2016,
+            'message' => 'Invalid password pattern! length ≥ 8 chars with upper and lower letters, digits and special characters',
+        ],
 
         // 3XXX - data is already taken
         'EMAIL_TAKEN' => [
