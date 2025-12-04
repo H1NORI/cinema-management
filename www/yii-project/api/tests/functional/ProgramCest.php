@@ -4,6 +4,7 @@ namespace api\tests\functional;
 
 use api\modules\v1\models\SigninForm;
 use api\tests\FunctionalTester;
+use common\models\Program;
 use common\models\User;
 use Yii;
 
@@ -15,9 +16,13 @@ class ProgramCest
     private int $programmerId = 999991;
     private int $staffId = 999992;
 
+    private int $secondProgrammerId = 999993;
+
+
     private string $adminJwt;
     private string $programmerJwt;
     private string $staffJwt;
+    private string $secondProgrammerJwt;
 
     private string $newProgramId;
 
@@ -114,6 +119,19 @@ class ProgramCest
         // ]);
 
         $this->staffJwt = SigninForm::testGenerateJwt($this->staffId);
+
+
+        $user = User::findOne($this->secondProgrammerId) ?? new User();
+        $user->id = $this->secondProgrammerId;
+        $user->email = 'test_second_programmer@test.com';
+        $user->username = 'test_second_programmer';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('password123');
+        $user->auth_key = Yii::$app->security->generateRandomString();
+        $user->role = 'USER';
+        $user->status = $user::STATUS_ACTIVE;
+        $user->save();
+
+        $this->secondProgrammerJwt = SigninForm::testGenerateJwt($this->secondProgrammerId);
 
     }
 
@@ -273,34 +291,34 @@ class ProgramCest
      * ADD PROGRAMMER
      * ---------------------------------------------------- */
 
-    // public function addProgrammer(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
-    //         'user_id' => $this->staffId,
-    //     ]);
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program programmer added successfully'
-    //     ]);
-    // }
+    public function addProgrammer(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
+            'user_id' => $this->secondProgrammerId,
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Program programmer added successfully'
+        ]);
+    }
 
-    // public function addProgrammerAddingAdminNotAllowed(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
-    //         'user_id' => $this->staffId,
-    //     ]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 8001,
-    //         'message' => 'Admin cannot manage program',
-    //     ]);
-    // }
+    public function addProgrammerAddingAdminNotAllowed(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
+            'user_id' => $this->adminId,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8001,
+            'message' => 'Admin cannot manage program',
+        ]);
+    }
 
-    // /* ----------------------------------------------------
-    //  * ADD STAFF
-    //  * ---------------------------------------------------- */
+    /* ----------------------------------------------------
+     * ADD STAFF
+     * ---------------------------------------------------- */
 
     public function addStaff(FunctionalTester $I)
     {
@@ -327,9 +345,9 @@ class ProgramCest
         ]);
     }
 
-    // /* ----------------------------------------------------
-    //  * DELETE PROGRAM
-    //  * ---------------------------------------------------- */
+    /* ----------------------------------------------------
+     * DELETE PROGRAM
+     * ---------------------------------------------------- */
 
     public function deleteProgramAsStaffNotAllowed(FunctionalTester $I)
     {
@@ -342,18 +360,17 @@ class ProgramCest
         ]);
     }
 
-    // public function deleteProgramInStateOtherFromCreated(FunctionalTester $I)
-    // {
-    //     $this->updateState($I);
+    public function deleteProgramAsSecondProgrammerNotAllowed(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendDELETE('/program/' . $this->secondProgrammerId);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 5002,
+            'message' => 'Program does not exist',
+        ]);
+    }
 
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerId);
-    //     $I->sendDELETE('/program/' . $this->newProgramId);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 5002,
-    //         'message' => 'Program does not exist',
-    //     ]);
-    // }
     public function deleteProgram(FunctionalTester $I)
     {
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
@@ -364,19 +381,33 @@ class ProgramCest
         ]);
     }
 
-    // /* ----------------------------------------------------
-    //  * UPDATE STATE
-    //  * ---------------------------------------------------- */
+    public function deleteProgramInStateOtherFromCreated(FunctionalTester $I)
+    {
+        $this->createProgramAsProgrammer($I);
+        $this->updateState($I);
 
-    // public function updateState(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendDELETE('/program/' . $this->newProgramId);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 7003,
+            'message' => 'Can delete program only when state is CREATED',
+        ]);
 
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
+        Program::findOne($this->newProgramId)->delete();
+    }
 
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program state updated successfully'
-    //     ]);
-    // }
+    /* ----------------------------------------------------
+     * UPDATE STATE
+     * ---------------------------------------------------- */
+
+    public function updateState(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Program state updated successfully'
+        ]);
+    }
 }
