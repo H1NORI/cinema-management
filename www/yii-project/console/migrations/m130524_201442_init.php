@@ -18,6 +18,7 @@ class m130524_201442_init extends Migration
             'auth_key' => $this->string(32)->notNull(),
             'password_hash' => $this->string()->notNull(),
             'password_reset_token' => $this->string()->unique(),
+            'token_version' => $this->integer()->notNull()->defaultValue(1),
             'email' => $this->string()->notNull()->unique(),
 
             'role' => "ENUM(

@@ -17,6 +17,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $verification_token
+ * @property int $token_version
  * @property string $email
  * @property string $auth_key
  * @property string $role
@@ -65,11 +66,12 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['password_reset_token', 'verification_token'], 'default', 'value' => null],
+            [['token_version'], 'default', 'value' => 1],
             [['role'], 'default', 'value' => 'USER'],
             [['status'], 'default', 'value' => 10],
             [['username', 'auth_key', 'password_hash', 'email'], 'required'],
             [['role'], 'string'],
-            [['status', 'created_at', 'updated_at'], 'integer'],
+            [['token_version', 'status', 'created_at', 'updated_at'], 'integer'],
             [['username', 'password_hash', 'password_reset_token', 'email', 'verification_token'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             ['role', 'in', 'range' => array_keys(self::optsRole())],
@@ -99,7 +101,11 @@ class User extends ActiveRecord implements IdentityInterface
             $jwt = Yii::$app->jwt;
             $token = $jwt->loadToken((string) $token);
 
-            return static::findOne(['id' => $token->claims()->get('uid', null)]);
+            return static::findOne([
+                'id' => $token->claims()->get('uid', null),
+                'token_version' => $token->claims()->get('tv', 0), 
+                'status' => self::STATUS_ACTIVE
+            ]);
         } catch (\Exception $e) {
             Yii::error('JWT parse error: ' . $e->getMessage(), __METHOD__);
             return null;
