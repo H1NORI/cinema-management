@@ -16,6 +16,7 @@ use yii\web\IdentityInterface;
  * @property string $username
  * @property string $password_hash
  * @property string $password_reset_token
+ * @property int $password_fail_count
  * @property string $verification_token
  * @property int $token_version
  * @property string $email
@@ -67,11 +68,12 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['password_reset_token', 'verification_token'], 'default', 'value' => null],
             [['token_version'], 'default', 'value' => 1],
+            [['password_fail_count'], 'default', 'value' => 0],
             [['role'], 'default', 'value' => 'USER'],
             [['status'], 'default', 'value' => 10],
             [['username', 'auth_key', 'password_hash', 'email'], 'required'],
             [['role'], 'string'],
-            [['token_version', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['token_version', 'password_fail_count', 'status', 'created_at', 'updated_at'], 'integer'],
             [['username', 'password_hash', 'password_reset_token', 'email', 'verification_token'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             ['role', 'in', 'range' => array_keys(self::optsRole())],
@@ -103,7 +105,7 @@ class User extends ActiveRecord implements IdentityInterface
 
             return static::findOne([
                 'id' => $token->claims()->get('uid', null),
-                'token_version' => $token->claims()->get('tv', 0), 
+                'token_version' => $token->claims()->get('tv', 0),
                 'status' => self::STATUS_ACTIVE
             ]);
         } catch (\Exception $e) {
@@ -123,6 +125,11 @@ class User extends ActiveRecord implements IdentityInterface
         return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
     }
 
+    public static function findByUsernameAny($username)
+    {
+        return static::findOne(['username' => $username]);
+    }
+
     /**
      * Finds user by email
      *
@@ -132,6 +139,11 @@ class User extends ActiveRecord implements IdentityInterface
     public static function findByEmail($email)
     {
         return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    public static function findByEmailAny($email)
+    {
+        return static::findOne(['email' => $email]);
     }
 
     /**

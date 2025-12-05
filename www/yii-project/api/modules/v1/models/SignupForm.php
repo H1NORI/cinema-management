@@ -97,7 +97,7 @@ class SignupForm extends Model
     protected function getUserByUsername()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+            $this->_user = User::findByUsernameAny($this->username);
         }
 
         return $this->_user;
@@ -106,7 +106,7 @@ class SignupForm extends Model
     protected function getUserByEmail()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByEmail($this->email);
+            $this->_user = User::findByEmailAny($this->email);
         }
 
         return $this->_user;

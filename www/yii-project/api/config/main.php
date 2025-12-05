@@ -75,7 +75,8 @@ return [
                     'controller' => ['v1/user'],
                     'pluralize' => false,
                     'extraPatterns' => [
-                        // 'PUT update/<id:\d+>' => 'update',
+                        'PUT update-password' => 'update-password',
+                        'PUT update-status/<id:\d+>' => 'update-status',
                     ],
                 ],
                 // [

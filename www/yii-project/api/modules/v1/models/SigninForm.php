@@ -32,6 +32,15 @@ class SigninForm extends Model
         ];
     }
 
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios['logout'] = [];
+
+        return $scenarios;
+    }
+
     public function signin()
     {
         if (!$this->validate()) {
@@ -45,6 +54,27 @@ class SigninForm extends Model
         }
 
         return $this->getAuthData(true);
+    }
+
+    public function logout($id)
+    {
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        $user = UserForm::findOne($id);
+
+        if (!$user) {
+            throw new ApiException('USER_DOESNT_EXIST');
+        }
+
+        $user->token_version += 1;
+
+        if (!$user->save(false)) {
+            throw new ApiException('ERROR_SAVING_USER');
+        }
+
+        return true;
     }
 
     private function getAuthData($sendCode = false)

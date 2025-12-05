@@ -4,19 +4,20 @@ namespace api\modules\v1\models;
 
 use common\exceptions\ApiException;
 use common\models\User;
+use yii\web\UnauthorizedHttpException;
 
 class UserForm extends User
 {
-    // public $username;
-    // public $email;
-    // public $password;
+    public $password;
+    public $new_password;
+    public $confirm_password;
     private $_user;
 
     public function rules()
     {
         return [
 
-            [['username', 'email', 'password'], 'trim'],
+            [['username', 'email', 'password', 'new_password', 'confirm_password'], 'trim'],
             ['username', 'required', 'on' => ['update'], 'message' => 'USERNAME_REQUIRED'],
             ['username', 'validateUsername', 'on' => ['update']],
             [
@@ -32,14 +33,17 @@ class UserForm extends User
             ['email', 'validateEmail', 'on' => ['update']],
 
 
-            // ['password', 'required', 'on' => ['update'], 'message' => 'PASSWORD_REQUIRED'],
-            // [
-            //     'password',
-            //     'match',
-            //     'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/',
-            //     'message' => 'INVALID_PASSWORD_PATTERN',
-            //     'on' => ['update']
-            // ],
+            [['password', 'new_password', 'confirm_password'], 'required', 'on' => ['update-password'], 'message' => 'PASSWORD_REQUIRED'],
+            [
+                ['password', 'new_password', 'confirm_password'],
+                'match',
+                'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/',
+                'message' => 'INVALID_PASSWORD_PATTERN',
+                'on' => ['update-password']
+            ],
+
+            ['status', 'required', 'on' => ['update-status'], 'message' => 'STATUS_REQUIRED'],
+            ['status', 'in', 'range' => [self::STATUS_DELETED, self::STATUS_INACTIVE, self::STATUS_ACTIVE], 'message' => 'INVALID_STATUS'],
         ];
     }
 
@@ -47,14 +51,10 @@ class UserForm extends User
     {
         $scenarios = parent::scenarios();
 
-        // $scenarios['search'] = ['name', 'description', 'start_date', 'end_date'];
-
-        // $scenarios['create'] = ['name', 'description', 'start_date', 'end_date'];
         $scenarios['update'] = ['username', 'email'];
-        // $scenarios['add-programmer'] = ['user_id'];
-        // $scenarios['add-staff'] = ['user_id'];
-
-        // $scenarios['update-state'] = ['user_id'];
+        $scenarios['update-password'] = ['password', 'new_password', 'confirm_password'];
+        $scenarios['update-status'] = ['status'];
+        $scenarios['delete'] = [];
 
         return $scenarios;
     }
@@ -70,10 +70,90 @@ class UserForm extends User
         }
 
         if (!$this->save(false)) {
-            throw new ApiException('ERROR_SAVING_PROGRAM');
+            throw new ApiException('ERROR_SAVING_USER');
         }
 
         return true;
+    }
+
+    public function updatePasswordUser()
+    {
+        if (!$this->validatePassword($this->password)) {
+            $this->incrementFailCount();
+            if ($this->password_fail_count >= 3) {
+                $this->deactivateAccountAndIncrementTokenVersion();
+                throw new UnauthorizedHttpException();
+            }
+            throw new ApiException(errorKey: 'INVALID_PASSWORD');
+        }
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if ($this->new_password !== $this->confirm_password) {
+            $this->incrementFailCount();
+            if ($this->password_fail_count >= 3) {
+                $this->deactivateAccountAndIncrementTokenVersion();
+                throw new UnauthorizedHttpException('The user is inactive.');
+            }
+            throw new ApiException('PASSWORDS_SHOULD_BE_EQUAL');
+        }
+
+        $this->token_version++;
+
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_USER');
+        }
+
+        return true;
+    }
+
+    public function updateStatusUser()
+    {
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        $this->token_version++;
+
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_USER');
+        }
+
+        return true;
+    }
+
+    public function deleteUser()
+    {
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if (!$this->delete()) {
+            throw new ApiException('ERROR_DELETING_USER');
+        }
+
+        return true;
+    }
+
+    public function incrementTokenVersion()
+    {
+        $this->token_version++;
+        return $this->save(false, ['token_version']);
+    }
+
+    public function incrementFailCount()
+    {
+        $this->password_fail_count++;
+        return $this->save(false, ['password_fail_count']);
+    }
+
+    public function deactivateAccountAndIncrementTokenVersion()
+    {
+        $this->token_version++;
+        $this->status = self::STATUS_INACTIVE;
+        return $this->save(false, ['token_version', 'status']);
     }
 
     public function validateUsername($attribute, $params)

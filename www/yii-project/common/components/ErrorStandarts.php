@@ -29,10 +29,10 @@ class ErrorStandarts extends Component
             'code' => 1005,
             'message' => 'End date cannot be empty',
         ],
-        // 'TYPE_REQUIRED' => [
-        //     'code' => 1006,
-        //     'message' => 'Type cannot be empty',
-        // ],
+        'STATUS_REQUIRED' => [
+            'code' => 1006,
+            'message' => 'Status cannot be empty',
+        ],
         'USER_ID_REQUIRED' => [
             'code' => 1007,
             'message' => 'User ID cannot be empty',
@@ -135,6 +135,14 @@ class ErrorStandarts extends Component
             'code' => 2016,
             'message' => 'Invalid password pattern! length ≥ 8 chars with upper and lower letters, digits and special characters',
         ],
+        'PASSWORDS_SHOULD_BE_EQUAL' => [
+            'code' => 2017,
+            'message' => 'New password and confirmation password should be equal',
+        ],
+        'INVALID_STATUS' => [
+            'code' => 2018,
+            'message' => 'Status is not in range',
+        ],
 
         // 3XXX - data is already taken
         'EMAIL_TAKEN' => [
@@ -167,7 +175,7 @@ class ErrorStandarts extends Component
         // 5XXX - data does not exist
         'USER_DOESNT_EXIST' => [
             'code' => 5001,
-            'message' => 'User does not exist',
+            'message' => 'User does not exist or inactive',
         ],
         'PROGRAM_DOESNT_EXIST' => [
             'code' => 5002,
@@ -249,6 +257,18 @@ class ErrorStandarts extends Component
             'code' => 8003,
             'message' => 'Admin cannot manage screening',
         ],
+        'ANDMIN_CANT_CHANGE_ITSELF' => [
+            'code' => 8004,
+            'message' => 'Admin cannot change info about itself',
+        ],
+        'CANT_DELETE_ADMIN' => [
+            'code' => 8005,
+            'message' => 'Admin cannot be deleted',
+        ],
+        'USER_CANT_LOGUT_SOMEONE' => [
+            'code' => 8006,
+            'message' => 'User cannot logout someone',
+        ],
 
         // 9XXX - errors connected to DB
         'ERROR_SAVING_PROGRAM' => [
@@ -274,6 +294,14 @@ class ErrorStandarts extends Component
         'ERROR_SAVING_SCREENING_REVIEW' => [
             'code' => 9006,
             'message' => 'Error saving screening review',
+        ],
+        'ERROR_SAVING_USER' => [
+            'code' => 9007,
+            'message' => 'Error saving user',
+        ],
+        'ERROR_DELETING_USER' => [
+            'code' => 9008,
+            'message' => 'Error deleting user',
         ],
 
         'UNEXPECTED_ERROR' => [

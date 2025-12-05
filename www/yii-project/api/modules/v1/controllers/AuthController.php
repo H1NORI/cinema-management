@@ -73,48 +73,72 @@ class AuthController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
-    //TODO rework refresh-token action
-    public function actionRefreshToken()
+    public function actionLogout($id)
     {
-        $refreshToken = Yii::$app->request->cookies->getValue('refresh-token', false);
-        if (!$refreshToken) {
-            return new \yii\web\UnauthorizedHttpException('No refresh token found.');
+        $model = new SigninForm();
+
+        if (!$id) {
+            $id = Yii::$app->user->id;
+        }else if (!Yii::$app->user->identity->isRoleAdmin() && Yii::$app->user->id != $id) {
+            throw new ApiException('USER_CANT_LOGUT_SOMEONE');
         }
 
-        $userRefreshToken = UserRefreshToken::findOne(['urf_token' => $refreshToken]);
+        $model->scenario = 'logout';
 
-        if (Yii::$app->request->getMethod() == 'POST') {
-            // Getting new JWT after it has expired
-            if (!$userRefreshToken) {
-                return new \yii\web\UnauthorizedHttpException('The refresh token no longer exists.');
-            }
-
-            $user = User::find()
-                ->where(['id' => $userRefreshToken->urf_userID])
-                ->one();
-
-            if (!$user) {
-                $userRefreshToken->delete();
-                return new \yii\web\UnauthorizedHttpException('The user is inactive.');
-            }
-
-            $token = $this->generateJwt($user);
-
+        $model->load(['SigninForm' => Yii::$app->request->post()]);
+        if ($model->logout($id)) {
             return [
-                'status' => true,
-                'token' => (string) $token,
+                'success' => true,
+                'message' => 'User logged out successfully',
+                'data' => [],
             ];
-
-        } elseif (Yii::$app->request->getMethod() == 'DELETE') {
-            // Logging out
-            if ($userRefreshToken && !$userRefreshToken->delete()) {
-                return new \yii\web\ServerErrorHttpException('Failed to delete the refresh token.');
-            }
-
-            return ['status' => 'ok'];
-        } else {
-            return new \yii\web\UnauthorizedHttpException('The user is inactive.');
         }
+
+        throw new ApiException('UNEXPECTED_ERROR');
     }
+
+    //TODO rework refresh-token action
+    // public function actionRefreshToken()
+    // {
+    //     $refreshToken = Yii::$app->request->cookies->getValue('refresh-token', false);
+    //     if (!$refreshToken) {
+    //         return new \yii\web\UnauthorizedHttpException('No refresh token found.');
+    //     }
+
+    //     $userRefreshToken = UserRefreshToken::findOne(['urf_token' => $refreshToken]);
+
+    //     if (Yii::$app->request->getMethod() == 'POST') {
+    //         // Getting new JWT after it has expired
+    //         if (!$userRefreshToken) {
+    //             return new \yii\web\UnauthorizedHttpException('The refresh token no longer exists.');
+    //         }
+
+    //         $user = User::find()
+    //             ->where(['id' => $userRefreshToken->urf_userID])
+    //             ->one();
+
+    //         if (!$user) {
+    //             $userRefreshToken->delete();
+    //             return new \yii\web\UnauthorizedHttpException('The user is inactive.');
+    //         }
+
+    //         $token = $this->generateJwt($user);
+
+    //         return [
+    //             'status' => true,
+    //             'token' => (string) $token,
+    //         ];
+
+    //     } elseif (Yii::$app->request->getMethod() == 'DELETE') {
+    //         // Logging out
+    //         if ($userRefreshToken && !$userRefreshToken->delete()) {
+    //             return new \yii\web\ServerErrorHttpException('Failed to delete the refresh token.');
+    //         }
+
+    //         return ['status' => 'ok'];
+    //     } else {
+    //         return new \yii\web\UnauthorizedHttpException('The user is inactive.');
+    //     }
+    // }
 
 }
