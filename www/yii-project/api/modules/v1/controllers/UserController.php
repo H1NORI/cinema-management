@@ -82,6 +82,8 @@ class UserController extends ApiController
                 throw new ApiException('ANDMIN_CANT_CHANGE_ITSELF');
             }
             $model = UserForm::findOne($id);
+        } else {
+            throw new ApiException('USER_CANT_MAKE_THIS_ACTION');
         }
 
         if (!$model) {

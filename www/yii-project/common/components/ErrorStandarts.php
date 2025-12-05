@@ -269,6 +269,10 @@ class ErrorStandarts extends Component
             'code' => 8006,
             'message' => 'User cannot logout someone',
         ],
+        'USER_CANT_MAKE_THIS_ACTION' => [
+            'code' => 8007,
+            'message' => 'User cannot make this action',
+        ],
 
         // 9XXX - errors connected to DB
         'ERROR_SAVING_PROGRAM' => [

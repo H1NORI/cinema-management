@@ -48,75 +48,36 @@ class ProgramCest
         $user = User::findOne($this->adminId) ?? new User();
         $user->id = $this->adminId;
         $user->email = 'test_admin@test.com';
-        $user->username = 'test_admin';
-        $user->password_hash = Yii::$app->security->generatePasswordHash('password123');
+        $user->username = 'Test_admin';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'ADMIN';
         $user->status = $user::STATUS_ACTIVE;
         $user->save();
-
-        // Create Admin
-        // $I->haveInDatabase('user', [
-        //     'id' => $this->adminId,
-        //     'username' => 'test_admin',
-        //     'email' => 'test_admin@test.com',
-        //     'auth_key' => Yii::$app->security->generateRandomString(),
-        //     'password_hash' => Yii::$app->security->generatePasswordHash('password123'),
-        //     'status' => 10,
-        //     'role' => 'ADMIN',
-        //     'created_at' => time(),
-        //     'updated_at' => time(),
-        // ]);
 
         $this->adminJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->programmerId) ?? new User();
         $user->id = $this->programmerId;
         $user->email = 'test_programmer@test.com';
-        $user->username = 'test_programmer';
-        $user->password_hash = Yii::$app->security->generatePasswordHash('password123');
+        $user->username = 'Test_programmer';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
         $user->save();
-
-        // // Create Programmer
-        // $I->haveInDatabase('user', [
-        //     'id' => $this->programmerId,
-        //     'username' => 'test_programmer',
-        //     'email' => 'test_programmer@test.com',
-        //     'auth_key' => Yii::$app->security->generateRandomString(),
-        //     'password_hash' => Yii::$app->security->generatePasswordHash('password123'),
-        //     'status' => 10,
-        //     'role' => 'USER',
-        //     'created_at' => time(),
-        //     'updated_at' => time(),
-        // ]);
 
         $this->programmerJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->staffId) ?? new User();
         $user->id = $this->staffId;
         $user->email = 'test_staff@test.com';
-        $user->username = 'test_staff';
-        $user->password_hash = Yii::$app->security->generatePasswordHash('password123');
+        $user->username = 'Test_staff';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
         $user->save();
-
-        // // Create Staff
-        // $I->haveInDatabase('user', [
-        //     'id' => $this->staffId,
-        //     'username' => 'test_staff',
-        //     'email' => 'test_staff@test.com',
-        //     'auth_key' => Yii::$app->security->generateRandomString(),
-        //     'password_hash' => Yii::$app->security->generatePasswordHash('password123'),
-        //     'status' => 10,
-        //     'role' => 'USER',
-        //     'created_at' => time(),
-        //     'updated_at' => time(),
-        // ]);
 
         $this->staffJwt = SigninForm::generateJwt($user);
 
@@ -124,15 +85,14 @@ class ProgramCest
         $user = User::findOne($this->secondProgrammerId) ?? new User();
         $user->id = $this->secondProgrammerId;
         $user->email = 'test_second_programmer@test.com';
-        $user->username = 'test_second_programmer';
-        $user->password_hash = Yii::$app->security->generatePasswordHash('password123');
+        $user->username = 'Test_second_programmer';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
         $user->save();
 
         $this->secondProgrammerJwt = SigninForm::generateJwt($user);
-
     }
 
 
