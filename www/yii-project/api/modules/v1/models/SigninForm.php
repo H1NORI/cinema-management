@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use \Yii;
 use yii\base\Model;
 use common\models\User;
-use common\models\UserToken;
 
 class SigninForm extends Model
 {
@@ -48,9 +47,14 @@ class SigninForm extends Model
         }
 
         if ($this->_user === null) {
-            $this->addError('email', 1003);
-
             return false;
+        }
+
+        $this->_user->token_version += 1;
+        $this->_user->password_fail_count = 0;
+
+        if (!$this->_user->save(false, ['token_version', 'password_fail_count'])) {
+            throw new ApiException('ERROR_SAVING_USER');
         }
 
         return $this->getAuthData(true);
@@ -168,6 +172,11 @@ class SigninForm extends Model
             if (!$this->_user) {
                 throw new ApiException(errorKey: 'USER_DOESNT_EXIST');
             } elseif (!$this->_user->validatePassword($this->password)) {
+                $this->_user->incrementFailCount();
+                if ($this->_user->password_fail_count >= 3) {
+                    $this->_user->deactivateAccountAndIncrementTokenVersion();
+                    throw new UnauthorizedHttpException();
+                }
                 throw new ApiException(errorKey: 'INVALID_PASSWORD');
             }
         }

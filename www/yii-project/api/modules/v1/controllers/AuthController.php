@@ -6,8 +6,6 @@ use api\modules\v1\controllers\ApiController;
 use api\modules\v1\models\SigninForm;
 use api\modules\v1\models\SignupForm;
 use common\exceptions\ApiException;
-use common\models\User;
-use common\models\UserRefreshToken;
 use Yii;
 
 class AuthController extends ApiController
@@ -44,9 +42,9 @@ class AuthController extends ApiController
                     'user' => [
                         'id' => $model->getUserId(),
                         'email' => $model->getUserEmail(),
+                        'token' => $model->token,
                         //TODO add more fields?
                     ],
-                    'token' => $model->token,
                     'refresh_token' => $model->refreshToken,
                 ],
             ];
@@ -79,7 +77,7 @@ class AuthController extends ApiController
 
         if (!$id) {
             $id = Yii::$app->user->id;
-        }else if (!Yii::$app->user->identity->isRoleAdmin() && Yii::$app->user->id != $id) {
+        } else if (!Yii::$app->user->identity->isRoleAdmin() && Yii::$app->user->id != $id) {
             throw new ApiException('USER_CANT_LOGUT_SOMEONE');
         }
 

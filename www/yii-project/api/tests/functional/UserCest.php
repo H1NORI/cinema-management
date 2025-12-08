@@ -24,7 +24,9 @@ class UserCest
     private string $staffJwt;
     private string $secondProgrammerJwt;
 
-    private string $newProgramId;
+    private string $newAdminJwt;
+    private string $newUserJwt;
+    private string $newUserId;
 
 
     private static bool $initialized = false;
@@ -45,6 +47,8 @@ class UserCest
 
     private function createTestUsers(FunctionalTester $I)
     {
+        $I->comment("=== Creating test users... ===");
+
         $user = User::findOne($this->adminId) ?? new User();
         $user->id = $this->adminId;
         $user->email = 'test_admin@test.com';
@@ -303,11 +307,6 @@ class UserCest
         ]);
     }
 
-
-    /* ----------------------------------------------------
-     * SIGN IN ERRORS
-     * ---------------------------------------------------- */
-
     public function updateStatus(FunctionalTester $I)
     {
         $user = User::findByEmailAny('test@gmail.com');
@@ -323,6 +322,10 @@ class UserCest
         ]);
     }
 
+    /* ----------------------------------------------------
+     * SIGN IN SUCCESSFULLY
+     * ---------------------------------------------------- */
+
     public function signin(FunctionalTester $I)
     {
         $I->sendPOST('/auth/signin', [
@@ -334,211 +337,122 @@ class UserCest
             'success' => true,
             'message' => 'User signed in successfully',
             'data' => [
-                'user' => [],
+                'user' => [
+                    // 'id',
+                    // 'email',
+                    // 'token',
+                ],
+                'refresh_token' => [],
             ],
+        ]);
+
+        $response = json_decode($I->grabResponse(), true);
+        $this->newUserJwt = $response['data']['user']['token'] ?? null;
+    }
+
+    public function signinAdmin(FunctionalTester $I)
+    {
+        $I->sendPOST('/auth/signin', [
+            'email' => 'test_admin@test.com',
+            'password' => 'Net12345_'
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User signed in successfully',
+            'data' => [
+                'user' => [
+                    'id' => $this->adminId,
+                    'email' => 'test_admin@test.com',
+                ],
+                'refresh_token' => [],
+            ],
+        ]);
+
+        $response = json_decode($I->grabResponse(), true);
+        $this->newAdminJwt = $response['data']['user']['token'] ?? null;
+    }
+
+    public function updateStatusOldAdminToken(FunctionalTester $I)
+    {
+        $user = User::findByEmailAny('test@gmail.com');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->adminJwt);
+        $I->sendPUT('/user/update-status/' . $user->id, [
+            'status' => 10
+        ]);
+        $I->seeResponseCodeIs(401);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'message' => 'Your request was made with invalid credentials.',
+            'error_code' => 401,
         ]);
     }
 
-    // public function updateProgramNameRequired(FunctionalTester $I)
+    // public function updateStatusNewAdminToken(FunctionalTester $I)
     // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['name' => null]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 1008,
-    //         'message' => 'Name cannot be empty',
-    //     ]);
-    // }
-
-    // public function updateProgramNameTooLong(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['name' => '12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890']);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 2010,
-    //         'message' => 'Name max length is 255 characters',
-    //     ]);
-    // }
-
-    // public function updateProgramStartDateRequired(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['start_date' => null]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 1004,
-    //         'message' => 'Start date cannot be empty',
-    //     ]);
-    // }
-
-    // public function updateProgramStartDateInvalidFormat(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['start_date' => '12/07/2025']);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 2003,
-    //         'message' => 'Invalid start date format',
-    //     ]);
-    // }
-
-    // public function updateProgramEndDateRequired(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['end_date' => null]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 1005,
-    //         'message' => 'End date cannot be empty',
-    //     ]);
-    // }
-
-    // public function updateProgramEndDateInvalidFormat(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, ['end_date' => '12/07/2025']);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 2004,
-    //         'message' => 'Invalid end date format',
-    //     ]);
-    // }
-
-    // public function updateProgram(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId, [
-    //         'name' => 'Updated Program'
-    //     ]);
-
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program updated successfully'
-    //     ]);
-    // }
-
-    // /* ----------------------------------------------------
-    //  * ADD PROGRAMMER
-    //  * ---------------------------------------------------- */
-
-    // public function addProgrammer(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
-    //         'user_id' => $this->secondProgrammerId,
+    //     $user = User::findByEmailAny('test@gmail.com');
+    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+    //     $I->sendPUT('/user/update-status/' . $user->id, [
+    //         'status' => 10
     //     ]);
     //     $I->seeResponseCodeIs(200);
     //     $I->seeResponseContainsJson([
-    //         'message' => 'Program programmer added successfully'
+    //         'success' => true,
+    //         'message' => 'User status updated successfully',
+    //         'data' => [],
     //     ]);
+
+    //     $this->newUserJwt = SigninForm::generateJwt($user);
     // }
 
-    // public function addProgrammerAddingAdminNotAllowed(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
-    //         'user_id' => $this->adminId,
-    //     ]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 8001,
-    //         'message' => 'Admin cannot manage program',
-    //     ]);
-    // }
+    /* ----------------------------------------------------
+     * SIGN IN SUCCESSFULLY
+     * ---------------------------------------------------- */
 
-    // /* ----------------------------------------------------
-    //  * ADD STAFF
-    //  * ---------------------------------------------------- */
+    public function logoutUserRoleCantLogoutSomeone(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newUserJwt);
+        $I->sendPUT('/auth/logout/' . $this->adminId, []);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'message' => 'User cannot logout someone',
+            'error_code' => 8006,
+        ]);
+    }
 
-    // public function addStaff(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-staff', [
-    //         'user_id' => $this->staffId,
-    //     ]);
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program staff added successfully'
-    //     ]);
-    // }
+    public function logoutNewUser(FunctionalTester $I)
+    {
+        $user = User::findByEmailAny('test@gmail.com');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+        $I->sendPUT('/auth/logout/' . $user->id, []);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User logged out successfully',
+        ]);
+    }
 
-    // public function addStaffAddingAdminNotAllowed(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/add-staff', [
-    //         'user_id' => $this->adminId,
-    //     ]);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 8001,
-    //         'message' => 'Admin cannot manage program',
-    //     ]);
-    // }
+    public function logoutAdminSelfLogout(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+        $I->sendPUT('/auth/logout/' . $this->adminId, []);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User logged out successfully',
+        ]);
+    }
 
-    // /* ----------------------------------------------------
-    //  * DELETE PROGRAM
-    //  * ---------------------------------------------------- */
-
-    // public function deleteProgramAsStaffNotAllowed(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
-    //     $I->sendDELETE('/program/' . $this->newProgramId);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 5002,
-    //         'message' => 'Program does not exist',
-    //     ]);
-    // }
-
-    // public function deleteProgramAsSecondProgrammerNotAllowed(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
-    //     $I->sendDELETE('/program/' . $this->secondProgrammerId);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 5002,
-    //         'message' => 'Program does not exist',
-    //     ]);
-    // }
-
-    // public function deleteProgram(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendDELETE('/program/' . $this->newProgramId);
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program deleted successfully'
-    //     ]);
-    // }
-
-    // public function deleteProgramInStateOtherFromCreated(FunctionalTester $I)
-    // {
-    //     $this->createProgramAsProgrammer($I);
-    //     $this->updateState($I);
-
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendDELETE('/program/' . $this->newProgramId);
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 7003,
-    //         'message' => 'Can delete program only when state is CREATED',
-    //     ]);
-
-    //     Program::findOne($this->newProgramId)->delete();
-    // }
-
-    // /* ----------------------------------------------------
-    //  * UPDATE STATE
-    //  * ---------------------------------------------------- */
-
-    // public function updateState(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
-    //     $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
-    //     $I->seeResponseCodeIs(200);
-    //     $I->seeResponseContainsJson([
-    //         'message' => 'Program state updated successfully'
-    //     ]);
-    // }
+    public function signinAdminUseOldToken(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+        $I->sendPUT('/auth/logout/' . $this->adminId, []);
+        $I->seeResponseCodeIs(401);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'error_code' => 401,
+            'message' => 'Your request was made with invalid credentials.',
+        ]);
+    }
 }

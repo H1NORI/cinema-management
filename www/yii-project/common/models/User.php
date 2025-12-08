@@ -84,6 +84,25 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public function incrementTokenVersion()
+    {
+        $this->token_version++;
+        return $this->save(false, ['token_version']);
+    }
+
+    public function incrementFailCount()
+    {
+        $this->password_fail_count++;
+        return $this->save(false, ['password_fail_count']);
+    }
+
+    public function deactivateAccountAndIncrementTokenVersion()
+    {
+        $this->token_version++;
+        $this->status = self::STATUS_INACTIVE;
+        return $this->save(false, ['token_version', 'status']);
+    }
+
     /**
      * {@inheritdoc}
      */

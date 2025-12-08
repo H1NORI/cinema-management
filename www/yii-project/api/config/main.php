@@ -79,6 +79,7 @@ return [
                         'PUT update-status/<id:\d+>' => 'update-status',
                     ],
                 ],
+                'v1/auth/logout/<id:\d+>' => 'v1/auth/logout',
                 // [
                 //     'class' => 'yii\rest\UrlRule',
                 //     'controller' => ['v1/group'],
