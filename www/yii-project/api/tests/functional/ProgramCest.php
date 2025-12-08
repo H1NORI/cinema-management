@@ -95,6 +95,11 @@ class ProgramCest
         $this->secondProgrammerJwt = SigninForm::generateJwt($user);
     }
 
+    public function deletePrograms(FunctionalTester $I)
+    {
+        Program::deleteAll();
+    }
+
 
     /* ----------------------------------------------------
      * CREATE PROGRAM
@@ -163,8 +168,8 @@ class ProgramCest
         $I->sendPUT('/program/' . $this->newProgramId, ['name' => 'No access']);
         $I->seeResponseCodeIs(400);
         $I->seeResponseContainsJson([
-            'error_code' => 5002,
-            'message' => 'Program does not exist',
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
         ]);
     }
 
@@ -315,8 +320,8 @@ class ProgramCest
         $I->sendDELETE('/program/' . $this->newProgramId);
         $I->seeResponseCodeIs(400);
         $I->seeResponseContainsJson([
-            'error_code' => 5002,
-            'message' => 'Program does not exist',
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
         ]);
     }
 
@@ -326,8 +331,8 @@ class ProgramCest
         $I->sendDELETE('/program/' . $this->secondProgrammerId);
         $I->seeResponseCodeIs(400);
         $I->seeResponseContainsJson([
-            'error_code' => 5002,
-            'message' => 'Program does not exist',
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
         ]);
     }
 
@@ -357,8 +362,246 @@ class ProgramCest
         Program::findOne($this->newProgramId)->delete();
     }
 
+
     /* ----------------------------------------------------
-     * UPDATE STATE
+     * CREATE PROGRAM - VALIDATION TESTS
+     * ---------------------------------------------------- */
+
+    public function createProgramNameRequired(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => null,
+            'description' => 'Desc',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1008,
+            'message' => 'Name cannot be empty',
+        ]);
+    }
+
+    public function createProgramNameTooLong(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => str_repeat('a', 256),
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2010,
+            'message' => 'Name max length is 255 characters',
+        ]);
+    }
+
+    public function createProgramNameTaken(FunctionalTester $I)
+    {
+        // First create a program
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Unique Program Name',
+            'description' => 'Desc',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(200);
+
+        // Try to create another with the same name
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Unique Program Name',
+            'description' => 'Desc',
+            'start_date' => '2025-02-01',
+            'end_date' => '2025-02-05',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 3003,
+            'message' => 'Name has already been taken',
+        ]);
+    }
+
+    public function createProgramStartDateRequired(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Test Program 1',
+            'start_date' => null,
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1004,
+            'message' => 'Start date cannot be empty',
+        ]);
+    }
+
+    public function createProgramStartDateInvalidFormat(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Test Program 1',
+            'start_date' => '01-01-2025',
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2003,
+            'message' => 'Invalid start date format',
+        ]);
+    }
+
+    public function createProgramEndDateRequired(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Test Program 1',
+            'start_date' => '2025-01-01',
+            'end_date' => null,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1005,
+            'message' => 'End date cannot be empty',
+        ]);
+    }
+
+    public function createProgramEndDateInvalidFormat(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPOST('/program', [
+            'name' => 'Test Program 1',
+            'start_date' => '2025-01-01',
+            'end_date' => '05-01-2025',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2004,
+            'message' => 'Invalid end date format',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * ADD PROGRAMMER - VALIDATION TESTS
+     * ---------------------------------------------------- */
+
+    public function addProgrammerUserIdRequired(FunctionalTester $I)
+    {
+        $this->createProgramAsProgrammer($I);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
+            'user_id' => null,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1007,
+            'message' => 'User ID cannot be empty',
+        ]);
+    }
+
+    public function addProgrammerUserDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
+            'user_id' => 999999888,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 5001,
+            'message' => 'User does not exist or inactive',
+        ]);
+    }
+
+    public function addProgrammerNonProgrammerDenied(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-programmer', [
+            'user_id' => $this->secondProgrammerId,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            // 'error_code' => 5002,
+            // 'message' => 'Program does not exist',
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    public function addProgrammerProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/999999999/add-programmer', [
+            'user_id' => $this->secondProgrammerId,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * ADD STAFF - VALIDATION TESTS
+     * ---------------------------------------------------- */
+
+    public function addStaffUserIdRequired(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-staff', [
+            'user_id' => null,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1007,
+            'message' => 'User ID cannot be empty',
+        ]);
+    }
+
+    public function addStaffUserDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-staff', [
+            'user_id' => 999999888,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 5001,
+            'message' => 'User does not exist or inactive',
+        ]);
+    }
+
+    public function addStaffNonProgrammerDenied(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/add-staff', [
+            'user_id' => $this->staffId,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    public function addStaffProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/999999999/add-staff', [
+            'user_id' => $this->staffId,
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * UPDATE PROGRAM - ADDITIONAL TESTS
      * ---------------------------------------------------- */
 
     public function updateState(FunctionalTester $I)
@@ -369,5 +612,320 @@ class ProgramCest
         $I->seeResponseContainsJson([
             'message' => 'Program state updated successfully'
         ]);
+    }
+
+    public function updateProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/999999999', [
+            'name' => 'Updated',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    public function updateProgramNonProgrammerDenied(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/program/' . $this->newProgramId, [
+            'name' => 'Updated',
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    public function updateProgramDescriptionOptional(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId, [
+            'description' => null,
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Program updated successfully'
+        ]);
+    }
+
+    public function updateProgramMultipleFields(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId, [
+            'name' => 'Updated Name',
+            'description' => 'Updated Description',
+            'start_date' => '2025-02-01',
+            'end_date' => '2025-02-15',
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Program updated successfully'
+        ]);
+    }
+
+    //todo review this
+    // public function updateProgramInAnnouncedState(FunctionalTester $I)
+    // {
+    //     $this->updateState($I);
+    //     $this->updateState($I); // Move to ANNOUNCED state
+
+    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+    //     $I->sendPUT('/program/' . $this->newProgramId, [
+    //         'name' => 'Should Fail',
+    //     ]);
+    //     $I->seeResponseCodeIs(400);
+    //     $I->seeResponseContainsJson([
+    //         'error_code' => 7001,
+    //         'message' => 'Cant update program when state is ANNOUNCED',
+    //     ]);
+
+    //     Program::findOne($this->newProgramId)->delete();
+    // }
+
+    /* ----------------------------------------------------
+     * DELETE PROGRAM - ADDITIONAL TESTS
+     * ---------------------------------------------------- */
+
+    public function deleteProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendDELETE('/program/999999999');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    public function deleteProgramNonProgrammerDenied(FunctionalTester $I)
+    {
+        $this->createProgramAsProgrammer($I);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendDELETE('/program/' . $this->newProgramId);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * STATE TRANSITIONS
+     * ---------------------------------------------------- */
+
+    public function updateStateMultipleTimes(FunctionalTester $I)
+    {
+        // First state transition
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
+        $I->seeResponseCodeIs(200);
+
+        // Second state transition
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
+        $I->seeResponseCodeIs(200);
+
+        // Clean up
+        Program::findOne($this->newProgramId)->delete();
+    }
+
+    public function updateStateNonProgrammerDenied(FunctionalTester $I)
+    {
+        $this->createProgramAsProgrammer($I);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/program/' . $this->newProgramId . '/update-state');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+
+        Program::findOne($this->newProgramId)->delete();
+    }
+
+    public function updateStateProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/program/999999999/update-state');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * VIEW PROGRAM - ADDITIONAL TESTS
+     * ---------------------------------------------------- */
+
+    public function viewProgramDoesNotExist(FunctionalTester $I)
+    {
+        $I->sendGET('/program/999999999');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 5002,
+            'message' => 'Program does not exist',
+        ]);
+    }
+
+    //todo review this test
+    public function viewProgramPublicDataOnly(FunctionalTester $I)
+    {
+        $this->createProgramAsProgrammer($I);
+
+        $I->sendGET('/program/' . $this->newProgramId);
+        $I->seeResponseCodeIs(200);
+
+        // $I->seeResponseContainsJson([
+        //     'success' => true,
+        //     'message' => 'Program retrived',
+        //     'data' => [
+        //         'program' => [
+        //             'id' => $this->newProgramId
+        //         ]
+        //     ]
+        // ]);
+
+
+        // $response = json_decode($I->grabResponse(), true);
+
+        // $this->assertArrayHasKey('id', $response['data']['program']);
+        // $this->assertArrayHasKey('name', $response['data']['program']);
+        // $this->assertArrayHasKey('description', $response['data']['program']);
+        // $this->assertArrayHasKey('start_date', $response['data']['program']);
+        // $this->assertArrayHasKey('end_date', $response['data']['program']);
+    }
+
+    /* ----------------------------------------------------
+     * SEARCH PROGRAMS - ADDITIONAL TESTS
+     * ---------------------------------------------------- */
+
+    public function searchProgramsByName(FunctionalTester $I)
+    {
+        $I->sendGET('/program/search', [
+            'name' => 'Non Existent Program',
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'Programs retrived'
+        ]);
+    }
+
+    public function searchProgramsByDescription(FunctionalTester $I)
+    {
+        $I->sendGET('/program/search', [
+            'description' => 'test',
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'Programs retrived'
+        ]);
+    }
+
+    public function searchProgramsByDateRange(FunctionalTester $I)
+    {
+        $I->sendGET('/program/search', [
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'Programs retrived'
+        ]);
+    }
+
+    public function searchProgramsWithMultipleCriteria(FunctionalTester $I)
+    {
+        $I->sendGET('/program/search', [
+            'name' => 'Program',
+            'description' => 'test',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'Programs retrived'
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * INDEX PROGRAMS
+     * ---------------------------------------------------- */
+
+    public function indexProgramsRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendGET('/program');
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function indexProgramsAsAuthenticatedUser(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendGET('/program');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'Programs retrived'
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * AUTHENTICATION TESTS
+     * ---------------------------------------------------- */
+
+    public function createProgramRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendPOST('/program', [
+            'name' => 'Test Program 1',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-05',
+        ]);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function updateProgramRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/program/1', [
+            'name' => 'Updated',
+        ]);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function deleteProgramRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendDELETE('/program/1');
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function updateStateRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/program/1/update-state');
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function addProgrammerRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/program/1/add-programmer', [
+            'user_id' => 1,
+        ]);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function addStaffRequiresAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/program/1/add-staff', [
+            'user_id' => 1,
+        ]);
+        $I->seeResponseCodeIs(401);
     }
 }

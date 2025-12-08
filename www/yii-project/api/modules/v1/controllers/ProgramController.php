@@ -17,7 +17,7 @@ class ProgramController extends ApiController
         $behaviors['authenticator'] = [
             'class' => \kaabar\jwt\JwtHttpBearerAuth::class,
             'optional' => [
-                'index',
+                // 'index',
                 'search',
                 'view',
             ],
@@ -43,7 +43,7 @@ class ProgramController extends ApiController
     {
         $model = new ProgramForm();
         $model->scenario = 'search';
-        
+
         $programs = $model->search(['ProgramForm' => $this->request->queryParams]);
 
         return [
@@ -100,14 +100,14 @@ class ProgramController extends ApiController
 
     public function actionUpdate($id)
     {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
         $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
-        }
-
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
         $model->scenario = 'update';
@@ -129,14 +129,14 @@ class ProgramController extends ApiController
 
     public function actionAddProgrammer($id)
     {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
         $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
-        }
-
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
         $model->scenario = 'add-programmer';
@@ -157,16 +157,15 @@ class ProgramController extends ApiController
 
     public function actionAddStaff($id)
     {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
         $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
-
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
-        }
-
         $model->scenario = 'add-staff';
 
         $model->load(['ProgramForm' => Yii::$app->request->post()]);
@@ -185,14 +184,14 @@ class ProgramController extends ApiController
 
     public function actionDelete($id)
     {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
         $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
-        }
-
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
         $model->load(['ProgramForm' => Yii::$app->request->post()]);
@@ -210,14 +209,14 @@ class ProgramController extends ApiController
 
     public function actionUpdateState($id)
     {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
         $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
-        }
-
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
         if ($model->updateState()) {

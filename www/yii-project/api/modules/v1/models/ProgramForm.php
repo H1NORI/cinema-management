@@ -27,7 +27,7 @@ class ProgramForm extends Program
             [['name'], 'unique', 'message' => 'NAME_TAKEN'],
 
 
-            ['description', 'default', 'value' => null],
+            ['description', 'default', 'value' => ''],
             ['description', 'string', 'message' => 'INVALID_DESCRIPTION'],
 
             ['start_date', 'required', 'on' => ['create', 'update'], 'message' => 'START_DATE_REQUIRED'],
