@@ -30,6 +30,9 @@ class UserController extends ApiController
         if (Yii::$app->user->identity->isRoleAdmin()) {
             $model = UserForm::findOne($id);
         } else {
+            if (Yii::$app->user->id != $id) {
+                throw new ApiException('USER_CANT_MAKE_THIS_ACTION');
+            }
             $model = UserForm::findOne(Yii::$app->user->id);
         }
 
@@ -114,6 +117,9 @@ class UserController extends ApiController
             }
             $model = UserForm::findOne($id);
         } else {
+            if (Yii::$app->user->id != $id) {
+                throw new ApiException('USER_CANT_MAKE_THIS_ACTION');
+            }
             $model = UserForm::findOne(Yii::$app->user->id);
         }
 

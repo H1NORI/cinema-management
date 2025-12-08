@@ -28,7 +28,8 @@ class m251017_132641_create_data_log_table extends Migration
             'data_log',
             'user_id',
             'user',
-            'id', 
+            'id',
+            'CASCADE'
         );
     }
 

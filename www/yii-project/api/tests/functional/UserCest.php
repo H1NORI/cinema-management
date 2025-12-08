@@ -254,7 +254,7 @@ class UserCest
      * UPDATE STATUS
      * ---------------------------------------------------- */
 
-    public function updateStatusUserRole(FunctionalTester $I)
+    public function updateStatusUserCantUpdate(FunctionalTester $I)
     {
         $user = User::findByEmailAny('test@gmail.com');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
@@ -453,6 +453,366 @@ class UserCest
             'success' => false,
             'error_code' => 401,
             'message' => 'Your request was made with invalid credentials.',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * UPDATE USER
+     * ---------------------------------------------------- */
+
+    public function updateUserNoAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Updated_staff',
+            'email' => 'updated_staff@test.com'
+        ]);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function updateUserEmptyUsername(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => '',
+            'email' => 'updated_staff@test.com'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1003,
+            'message' => 'Username cannot be empty',
+        ]);
+    }
+
+    public function updateUserInvalidUsernamePattern(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'abc',
+            'email' => 'updated_staff@test.com'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2015,
+            'message' => 'Invalid username pattern! starts with a letter, ≥ 5 chars, allowed characters include alphanumeric and underscore',
+        ]);
+    }
+
+    public function updateUserEmptyEmail(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Updated_staff',
+            'email' => ''
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1001,
+            'message' => 'Email cannot be empty',
+        ]);
+    }
+
+    public function updateUserInvalidEmailFormat(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Updated_staff',
+            'email' => 'not_an_email'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2002,
+            'message' => 'Invalid email format',
+        ]);
+    }
+
+    public function updateUserEmailTaken(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Updated_staff',
+            'email' => 'test_admin@test.com'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 3001,
+            'message' => 'Email has already been taken',
+        ]);
+    }
+
+    public function updateUserUsernameTaken(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Test_admin',
+            'email' => 'updated_staff@test.com'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 3002,
+            'message' => 'Username has already been taken',
+        ]);
+    }
+
+    public function updateUserSuccess(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->staffId, [
+            'username' => 'Updated_staff',
+            'email' => 'updated_staff@test.com'
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User updated successfully',
+            'data' => [],
+        ]);
+    }
+
+    public function updateUserCanUpdateOwnProfile(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/user/' . $this->programmerId, [
+            'username' => 'Updated_programmer',
+            'email' => 'updated_programmer@test.com'
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User updated successfully',
+        ]);
+    }
+
+    public function updateUserCantUpdateOwnProfileBecauseTokenInvalid(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/user/' . $this->programmerId, [
+            'username' => 'Updated_programmerrr',
+            'email' => 'updated_programmer@testtt.com'
+        ]);
+        $I->seeResponseCodeIs(401);
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'message' => 'Your request was made with invalid credentials.',
+        ]);
+    }
+
+    public function updateUserNonAdminCanOnlyUpdateOwnProfile(FunctionalTester $I)
+    {
+        $user = User::findOne($this->staffId);
+        $this->staffJwt = SigninForm::generateJwt($user);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/' . $this->programmerId, [
+            'username' => 'Hacked_programmer',
+            'email' => 'hacked@test.com'
+        ]);
+        $I->seeResponseCodeIs(400);
+        // Non-admin updates their own profile regardless of ID in URL
+        $I->seeResponseContainsJson([
+            'success' => false,
+            'error_code' => 8007,
+            'message' => 'User cannot make this action',
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * UPDATE PASSWORD
+     * ---------------------------------------------------- */
+
+    public function updatePasswordNoAuth(FunctionalTester $I)
+    {
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => 'NewPass123_'
+        ]);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function updatePasswordEmptyPassword(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => '',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => 'NewPass123_'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1002,
+            'message' => 'Password cannot be empty',
+        ]);
+    }
+
+    public function updatePasswordEmptyNewPassword(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => '',
+            'confirm_password' => ''
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1002,
+            'message' => 'Password cannot be empty',
+        ]);
+    }
+
+    public function updatePasswordEmptyConfirmPassword(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => ''
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 1002,
+            'message' => 'Password cannot be empty',
+        ]);
+    }
+
+    public function updatePasswordInvalidCurrentPasswordFormat(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'InvalidPass',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => 'NewPass123_'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2016,
+            'message' => 'Invalid password pattern! length ≥ 8 chars with upper and lower letters, digits and special characters',
+        ]);
+    }
+
+    public function updatePasswordInvalidNewPasswordFormat(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => 'weak',
+            'confirm_password' => 'weak'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2016,
+            'message' => 'Invalid password pattern! length ≥ 8 chars with upper and lower letters, digits and special characters',
+        ]);
+    }
+
+    public function updatePasswordPasswordsNotEqual(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => 'DifferentPass123_'
+        ]);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 2017,
+            'message' => 'New password and confirmation password should be equal',
+        ]);
+    }
+
+    public function updatePasswordSuccess(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/user/update-password', [
+            'password' => 'Net12345_',
+            'new_password' => 'NewPass123_',
+            'confirm_password' => 'NewPass123_'
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User password updated successfully',
+            'data' => [],
+        ]);
+    }
+
+    /* ----------------------------------------------------
+     * DELETE USER
+     * ---------------------------------------------------- */
+
+    public function deleteUserNoAuth(FunctionalTester $I)
+    {
+        $I->sendDELETE('/user/' . $this->staffId, []);
+        $I->seeResponseCodeIs(401);
+    }
+
+    public function deleteAdminCantDeleteItself(FunctionalTester $I)
+    {
+        $this->signinAdmin($I);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+        $I->sendDELETE('/user/' . $this->adminId, []);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8004,
+            'message' => 'Admin cannot change info about itself',
+        ]);
+    }
+
+    public function deleteUserCantDeleteAdmin(FunctionalTester $I)
+    {
+        $user = User::findOne($this->staffId);
+        $this->staffJwt = SigninForm::generateJwt($user);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendDELETE('/user/' . $this->adminId, []);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8007,
+            'message' => 'User cannot make this action',
+        ]);
+    }
+
+    public function deleteUserNonAdminCantDelete(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendDELETE('/user/' . $this->programmerId, []);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8007,
+            'message' => 'User cannot make this action',
+        ]);
+    }
+
+    public function deleteUserNonAdminCanDeleteThemselves(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondProgrammerJwt);
+        $I->sendDELETE('/user/' . $this->secondProgrammerId, []);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User deleted successfully',
+            'data' => [],
+        ]);
+    }
+
+    public function deleteUserSuccess(FunctionalTester $I)
+    {
+        $user = new User();
+        $user->email = 'temp_user@test.com';
+        $user->username = 'Temp_user';
+        $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
+        $user->auth_key = Yii::$app->security->generateRandomString();
+        $user->role = 'USER';
+        $user->status = $user::STATUS_ACTIVE;
+        $user->save();
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->newAdminJwt);
+        $I->sendDELETE('/user/' . $user->id, []);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'success' => true,
+            'message' => 'User deleted successfully',
+            'data' => [],
         ]);
     }
 }

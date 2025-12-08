@@ -4,6 +4,7 @@ namespace api\modules\v1\models;
 
 use common\exceptions\ApiException;
 use common\models\User;
+use Yii;
 use yii\web\UnauthorizedHttpException;
 
 class UserForm extends User
@@ -78,6 +79,10 @@ class UserForm extends User
 
     public function updatePasswordUser()
     {
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
         if (!$this->validatePassword($this->password)) {
             $this->incrementFailCount();
             if ($this->password_fail_count >= 3) {
@@ -85,10 +90,6 @@ class UserForm extends User
                 throw new UnauthorizedHttpException();
             }
             throw new ApiException(errorKey: 'INVALID_PASSWORD');
-        }
-
-        if (!$this->validate()) {
-            throw ApiException::fromModel($this);
         }
 
         if ($this->new_password !== $this->confirm_password) {
@@ -101,6 +102,7 @@ class UserForm extends User
         }
 
         $this->token_version++;
+        $this->password_fail_count = 0;
 
         if (!$this->save(false)) {
             throw new ApiException('ERROR_SAVING_USER');

@@ -37,12 +37,18 @@ class DataLogBehavior extends Behavior {
             $newAttributes = $model->attributes;
         }
 
+        //todo maybe I should change user status to deleted instead 
+        $userId = Yii::$app->user->id ?? null;
+        if ($event->name === ActiveRecord::EVENT_AFTER_DELETE && $model instanceof \common\models\User) {
+            $userId = null;
+        }
+
         DataLog::l(
             $oldAttributes,
             $newAttributes,
             $event,
             $model::className(),
-            Yii::$app->user->id ?? null,
+            $userId,
             // $this->getPK($model)
         );
     }
