@@ -99,7 +99,6 @@ class ScreeningController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
-    //TODO just started working on controller 
     public function actionUpdate($id)
     {
         $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);

@@ -44,7 +44,6 @@ class SiteController extends ApiController
         throw new HttpException(400, 'Something went wrong', 90001);
     }
 
-    //TODO added for test purpose only
     public function actionToken()
     {
         $headers = Yii::$app->request->headers;
