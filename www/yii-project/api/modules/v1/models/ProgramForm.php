@@ -64,6 +64,10 @@ class ProgramForm extends Program
     }
 
 
+    public static function findAnnouncedPrograms()
+    {
+        return self::find()->where(['state' => self::STATE_ANNOUNCED])->all();
+    }
 
     public static function findUserPrograms(int $userId)
     {

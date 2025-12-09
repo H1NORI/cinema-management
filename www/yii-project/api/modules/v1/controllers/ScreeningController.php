@@ -4,7 +4,6 @@ namespace api\modules\v1\controllers;
 
 use api\modules\v1\models\ProgramUserRoleForm;
 use api\modules\v1\models\ScreeningForm;
-use api\modules\v1\models\ScreeningUserRoleForm;
 use common\exceptions\ApiException;
 use Yii;
 use api\modules\v1\controllers\ApiController;
@@ -18,9 +17,9 @@ class ScreeningController extends ApiController
         $behaviors['authenticator'] = [
             'class' => \kaabar\jwt\JwtHttpBearerAuth::class,
             'optional' => [
-                // 'index',
-                // 'search',
-                // 'view',
+                'index',
+                'search',
+                'view',
             ],
         ];
 
@@ -29,13 +28,29 @@ class ScreeningController extends ApiController
 
     public function actionIndex()
     {
-        $screenings = ScreeningForm::findUserScreenings(Yii::$app->user->id);
+        $screenings = ScreeningForm::findScheduledScreenings();
+
+        $userId = Yii::$app->user->id;
+        $isGuest = Yii::$app->user->isGuest;
+
+        $result = [];
+
+        foreach ($screenings as $screening) {
+            $role = null;
+
+            if (!$isGuest) {
+                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
+                $role = $userProgramRole?->role;
+            }
+
+            $result[] = $screening->toPublicArray($role);
+        }
 
         return [
             'success' => true,
             'message' => 'Screenings retrived',
             'data' => [
-                'screenings' => $screenings,
+                'screenings' => $result,
             ],
         ];
     }
@@ -47,33 +62,49 @@ class ScreeningController extends ApiController
 
         $screenings = $model->search(['ScreeningForm' => $this->request->queryParams]);
 
+        $userId = Yii::$app->user->id;
+        $isGuest = Yii::$app->user->isGuest;
+
+        $result = [];
+
+        foreach ($screenings as $screening) {
+            $role = null;
+
+            if (!$isGuest) {
+                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
+                $role = $userProgramRole?->role;
+            }
+
+            $result[] = $screening->toPublicArray($role);
+        }
+
         return [
             'success' => true,
-            'message' => 'Screenings retrived',
+            'message' => 'Screenings retrieved',
             'data' => [
-                'screenings' => $screenings,
+                'screenings' => $result,
             ],
         ];
     }
 
-    // public function actionView($id)
-    // {
-    //     $model = ScreeningForm::findOne($id);
+    public function actionView($id)
+    {
+        $model = ScreeningForm::findOne($id);
 
-    //     if ($model == null) {
-    //         throw new ApiException('PROGRAM_DOESNT_EXIST');
-    //     }
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
 
-    //     $userRole = Yii::$app->user->id ? ScreeningUserRoleForm::findScreeningUserRole(Yii::$app->user->id, $id)->role : null;
+        $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $model->program_id)?->role : null;
 
-    //     return [
-    //         'success' => true,
-    //         'message' => 'Screening retrived',
-    //         'data' => [
-    //             'screening' => $model->toPublicArray($userRole),
-    //         ],
-    //     ];
-    // }
+        return [
+            'success' => true,
+            'message' => 'Screening retrived',
+            'data' => [
+                'screening' => $model->toPublicArray($userRole),
+            ],
+        ];
+    }
 
     public function actionCreate()
     {
@@ -282,7 +313,7 @@ class ScreeningController extends ApiController
     }
 
 
-// todo Screening acceptance (final scheduling): In DECISION (respective program’s state), mark
+    // todo Screening acceptance (final scheduling): In DECISION (respective program’s state), mark
 // approved & finally submitted screening as SCHEDULED (final). Function can only be accessed by
 // a PROGRAMMER.
 

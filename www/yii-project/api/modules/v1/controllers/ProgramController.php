@@ -17,7 +17,7 @@ class ProgramController extends ApiController
         $behaviors['authenticator'] = [
             'class' => \kaabar\jwt\JwtHttpBearerAuth::class,
             'optional' => [
-                // 'index',
+                'index',
                 'search',
                 'view',
             ],
@@ -28,13 +28,29 @@ class ProgramController extends ApiController
 
     public function actionIndex()
     {
-        $programs = ProgramForm::findUserPrograms(Yii::$app->user->id);
+        $programs = ProgramForm::findAnnouncedPrograms();
+
+        $userId = Yii::$app->user->id;
+        $isGuest = Yii::$app->user->isGuest;
+
+        $result = [];
+
+        foreach ($programs as $program) {
+            $role = null;
+
+            if (!$isGuest) {
+                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $program->id);
+                $role = $userProgramRole?->role;
+            }
+
+            $result[] = $program->toPublicArray($role);
+        }
 
         return [
             'success' => true,
             'message' => 'Programs retrived',
             'data' => [
-                'programs' => $programs,
+                'programs' => $result,
             ],
         ];
     }
@@ -46,11 +62,27 @@ class ProgramController extends ApiController
 
         $programs = $model->search(['ProgramForm' => $this->request->queryParams]);
 
+        $userId = Yii::$app->user->id;
+        $isGuest = Yii::$app->user->isGuest;
+
+        $result = [];
+
+        foreach ($programs as $program) {
+            $role = null;
+
+            if (!$isGuest) {
+                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $program->id);
+                $role = $userProgramRole?->role;
+            }
+
+            $result[] = $program->toPublicArray($role);
+        }
+
         return [
             'success' => true,
             'message' => 'Programs retrived',
             'data' => [
-                'programs' => $programs,
+                'programs' => $result,
             ],
         ];
     }
@@ -63,7 +95,7 @@ class ProgramController extends ApiController
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
-        $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $id)->role : null;
+        $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $id)?->role : null;
 
         return [
             'success' => true,

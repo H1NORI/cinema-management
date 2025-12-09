@@ -105,6 +105,10 @@ class ScreeningForm extends Screening
         return $scenarios;
     }
 
+    public static function findScheduledScreenings()
+    {
+        return self::find()->where(['state' => self::STATE_SCHEDULED])->all();
+    }
 
 
     public static function findUserScreenings(int $userId)
@@ -383,24 +387,30 @@ class ScreeningForm extends Screening
     }
 
 
-    // public function toPublicArray($role)
-    // {
-    //     $data = [
-    //         'id' => $this->id,
-    //         'name' => $this->name,
-    //         'description' => $this->description,
-    //         'start_date' => $this->start_date,
-    //         'end_date' => $this->end_date,
-    //     ];
+    public function toPublicArray($role)
+    {
+        $data = [
+            'id' => $this->id,
+            'film_title' => $this->film_title,
+            'film_genres' => $this->film_genres,
+            'film_cast' => $this->film_cast,
+            'film_duration' => $this->film_duration,
+            'auditorium' => $this->auditorium,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+        ];
 
-    //     if ($role == ScreeningUserRole::ROLE_PROGRAMMER || $role == ScreeningUserRole::ROLE_STAFF) {
-    //         $data['state'] = $this->displayState();
-    //         $data['created_at'] = $this->created_at;
-    //         $data['updated_at'] = $this->updated_at;
-    //     }
+        if ($role == ProgramUserRoleForm::ROLE_PROGRAMMER || $role == ProgramUserRoleForm::ROLE_STAFF) {
+            $data['state'] = $this->displayState();
+            $data['rejection_reason'] = $this->rejection_reason;
+            $data['submitter_id'] = $this->submitter_id;
+            $data['handler_id'] = $this->handler_id;
+            $data['created_at'] = $this->created_at;
+            $data['updated_at'] = $this->updated_at;
+        }
 
-    //     return $data;
-    // }
+        return $data;
+    }
 
 
     public function canTransitionToNextState()
