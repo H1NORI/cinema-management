@@ -68,6 +68,8 @@ return [
                     'controller' => ['v1/screening'],
                     'pluralize' => false,
                     'extraPatterns' => [
+                        'GET <program_id:\d+>' => 'index',
+                        'GET index/<program_id:\d+>' => 'index',
                     ],
                 ],
                 [

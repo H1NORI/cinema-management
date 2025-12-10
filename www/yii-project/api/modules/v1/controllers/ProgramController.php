@@ -28,7 +28,7 @@ class ProgramController extends ApiController
 
     public function actionIndex()
     {
-        $programs = ProgramForm::findAnnouncedPrograms();
+        $programs = ProgramForm::find()->all();
 
         $userId = Yii::$app->user->id;
         $isGuest = Yii::$app->user->isGuest;
@@ -43,7 +43,9 @@ class ProgramController extends ApiController
                 $role = $userProgramRole?->role;
             }
 
-            $result[] = $program->toPublicArray($role);
+            if ($role || $program->state === $program::STATE_ANNOUNCED) {
+                $result[] = $program->toPublicArray($role);
+            }
         }
 
         return [
@@ -73,6 +75,10 @@ class ProgramController extends ApiController
             if (!$isGuest) {
                 $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $program->id);
                 $role = $userProgramRole?->role;
+            }
+
+            if ($role || $program->state === $program::STATE_ANNOUNCED) {
+                $result[] = $program->toPublicArray($role);
             }
 
             $result[] = $program->toPublicArray($role);

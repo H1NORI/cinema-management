@@ -26,9 +26,9 @@ class ScreeningController extends ApiController
         return $behaviors;
     }
 
-    public function actionIndex()
+    public function actionIndex($program_id)
     {
-        $screenings = ScreeningForm::findScheduledScreenings();
+        $screenings = ScreeningForm::find()->where(['program_id' => $program_id])->all();
 
         $userId = Yii::$app->user->id;
         $isGuest = Yii::$app->user->isGuest;
@@ -41,6 +41,10 @@ class ScreeningController extends ApiController
             if (!$isGuest) {
                 $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
                 $role = $userProgramRole?->role;
+            }
+
+            if ($role || $screening->state === $screening::STATE_SCHEDULED) {
+                $result[] = $screening->toPublicArray($role);
             }
 
             $result[] = $screening->toPublicArray($role);
@@ -73,6 +77,10 @@ class ScreeningController extends ApiController
             if (!$isGuest) {
                 $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
                 $role = $userProgramRole?->role;
+            }
+
+            if ($role || $screening->state === $screening::STATE_SCHEDULED) {
+                $result[] = $screening->toPublicArray($role);
             }
 
             $result[] = $screening->toPublicArray($role);
