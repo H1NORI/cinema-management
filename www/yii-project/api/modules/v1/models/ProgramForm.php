@@ -13,11 +13,15 @@ class ProgramForm extends Program
 {
 
     public $user_id;
+    public $film_title;
+    public $auditorium;
 
     public function rules()
     {
         return [
             ['user_id', 'required', 'on' => ['add-programmer', 'add-staff'], 'message' => 'USER_ID_REQUIRED'],
+
+            [['film_title', 'auditorium'], 'safe'],
 
             ['created_by', 'required', 'message' => 'USER_ID_REQUIRED'],
             // ['created_by', 'required', 'on' => ['create', 'update', 'toggle'], 'message' => 'USER_ID_REQUIRED'],
@@ -35,6 +39,9 @@ class ProgramForm extends Program
 
             ['end_date', 'required', 'on' => ['create', 'update'], 'message' => 'END_DATE_REQUIRED'],
             ['end_date', 'date', 'format' => 'php:Y-m-d', 'message' => 'INVALID_END_DATE'],
+
+            [['start_date', 'end_date'], 'validateDateRange', 'on' => ['create', 'update', 'search']],
+
             // ['status', 'default', 'value' => self::STATUS_INACTIVE],
             // ['status', 'integer', 'message' => 'INVALID_STATUS_TYPE'],
             // ['status', 'required', 'on' => ['create', 'update', 'toggle'], 'message' => 'STATUS_REQUIRED'],
@@ -51,7 +58,7 @@ class ProgramForm extends Program
     {
         $scenarios = parent::scenarios();
 
-        $scenarios['search'] = ['name', 'description', 'start_date', 'end_date'];
+        $scenarios['search'] = ['name', 'description', 'start_date', 'end_date', 'film_title', 'auditorium'];
 
         $scenarios['create'] = ['name', 'description', 'start_date', 'end_date'];
         $scenarios['update'] = ['name', 'description', 'start_date', 'end_date'];
@@ -77,6 +84,11 @@ class ProgramForm extends Program
     public static function findUserProgram(int $userId, int $id)
     {
         return self::findOne(['id' => $id, 'created_by' => $userId]);
+    }
+
+    public static function findProgram(int $id)
+    {
+        return self::findOne(['id' => $id]);
     }
 
     public function createProgram(int $userId)
@@ -194,7 +206,8 @@ class ProgramForm extends Program
 
     public function search($params, $formName = null)
     {
-        $query = self::find();
+        $query = self::find()
+            ->joinWith('screenings');
 
         $this->load($params, $formName);
 
@@ -212,17 +225,13 @@ class ProgramForm extends Program
             return [];
         }
 
-        // TODO Program search: It shall be possible to search programs by name, description, dates, film title,
-        // auditorium with AND semantics (when the previously mentioned parameters have values
-        // supplied to them, then they are AND combined meaning that all these conditions must be
-        // satisfied in order to return the respective program.). If no criteria are supplied, then all
-        // programs must be returned. In any case, the results must be filtered by role and then sorted
-        // first by date and then by name.
-
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'description', $this->description]);
-        // ->andFilterWhere(['like', 'start_date', $this->start_date])
-        // ->andFilterWhere(['like', 'end_date', $this->end_date]);
+        // AND semantics автоматически обеспечивается andFilterWhere
+        $query
+            ->andFilterWhere(['like', 'program.name', $this->name])
+            ->andFilterWhere(['like', 'program.description', $this->description])
+            //todo по идеи тут ошибка так как мы можем получить запись через название Screening которое еще не публично
+            ->andFilterWhere(['like', 'screenings.film_title', $this->film_title])
+            ->andFilterWhere(['like', 'screenings.auditorium', $this->auditorium]);
 
         if ($this->start_date) {
             $query->andWhere(['>=', 'start_date', $this->start_date]);
@@ -232,7 +241,10 @@ class ProgramForm extends Program
             $query->andWhere(['<=', 'end_date', $this->end_date]);
         }
 
-        $query->orderBy(['start_date' => SORT_ASC, 'name' => SORT_ASC]);
+        $query->orderBy([
+            'program.start_date' => SORT_ASC,
+            'program.name' => SORT_ASC,
+        ]);
 
         return $query->all();
     }
@@ -282,6 +294,17 @@ class ProgramForm extends Program
         $next = $this->state + 1;
 
         return isset(self::$allowedStateTransitions[$current]) && in_array($next, self::$allowedStateTransitions[$current], true);
+    }
+
+    public function validateDateRange($attribute, $params)
+    {
+        if ($this->hasErrors()) {
+            return;
+        }
+
+        if (strtotime($this->start_date) >= strtotime($this->end_date)) {
+            throw new ApiException('INVALID_START_DATE_MUST_BE_BEFORE_END_DATE');
+        }
     }
 
 }

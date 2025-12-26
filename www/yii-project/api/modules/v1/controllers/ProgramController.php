@@ -80,8 +80,6 @@ class ProgramController extends ApiController
             if ($role || $program->state === $program::STATE_ANNOUNCED) {
                 $result[] = $program->toPublicArray($role);
             }
-
-            $result[] = $program->toPublicArray($role);
         }
 
         return [
@@ -95,21 +93,25 @@ class ProgramController extends ApiController
 
     public function actionView($id)
     {
-        $model = ProgramForm::findOne($id);
+        $program = ProgramForm::findOne($id);
 
-        if ($model == null) {
+        if ($program == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
         $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $id)?->role : null;
 
-        return [
-            'success' => true,
-            'message' => 'Program retrived',
-            'data' => [
-                'program' => $model->toPublicArray($userRole),
-            ],
-        ];
+        if ($userRole || $program->state === $program::STATE_ANNOUNCED) {
+            return [
+                'success' => true,
+                'message' => 'Program retrived',
+                'data' => [
+                    'program' => $program->toPublicArray($userRole),
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
     }
 
     public function actionCreate()
@@ -165,13 +167,14 @@ class ProgramController extends ApiController
     }
 
 
+    //todo add actionRemoveProgrammer
     public function actionAddProgrammer($id)
     {
         if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
             throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
-        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        $model = ProgramForm::findProgram($id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
@@ -193,17 +196,19 @@ class ProgramController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
+    //todo add actionRemoveStaff
     public function actionAddStaff($id)
     {
         if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
             throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
-        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        $model = ProgramForm::findProgram($id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
+
         $model->scenario = 'add-staff';
 
         $model->load(['ProgramForm' => Yii::$app->request->post()]);
@@ -226,7 +231,7 @@ class ProgramController extends ApiController
             throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
-        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        $model = ProgramForm::findProgram($id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
@@ -251,7 +256,7 @@ class ProgramController extends ApiController
             throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
-        $model = ProgramForm::findUserProgram(Yii::$app->user->id, $id);
+        $model = ProgramForm::findProgram($id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
