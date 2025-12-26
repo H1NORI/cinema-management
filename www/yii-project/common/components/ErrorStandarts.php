@@ -143,6 +143,10 @@ class ErrorStandarts extends Component
             'code' => 2018,
             'message' => 'Status is not in range',
         ],
+        'INVALID_START_DATE_MUST_BE_BEFORE_END_DATE'  => [
+            'code' => 2019,
+            'message' => 'Start date nust be before end date',
+        ],
 
         // 3XXX - data is already taken
         'EMAIL_TAKEN' => [
@@ -187,7 +191,7 @@ class ErrorStandarts extends Component
         ],
         'SCREENING_DOESNT_EXIST' => [
             'code' => 5004,
-            'message' => 'Program does not exist',
+            'message' => 'Program does not exist or specific role required',
         ],
 
         // 7XXX - state based errors
@@ -272,6 +276,10 @@ class ErrorStandarts extends Component
         'USER_CANT_MAKE_THIS_ACTION' => [
             'code' => 8007,
             'message' => 'User cannot make this action',
+        ],
+        'STAFF_ROLE_REQUIRED' => [
+            'code' => 8008,
+            'message' => 'Staff role required to make this action',
         ],
 
         // 9XXX - errors connected to DB
