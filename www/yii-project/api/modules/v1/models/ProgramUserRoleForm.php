@@ -100,7 +100,8 @@ class ProgramUserRoleForm extends ProgramUserRole
         }
 
         if (!$this->delete()) {
-            throw new ApiException('ERROR_DELETING_PROGRAM');
+            //todo remake error code
+            throw new ApiException('ERROR_DELETING_PROGRAM_ROLE');
         }
 
         return true;

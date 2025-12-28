@@ -321,6 +321,10 @@ class ErrorStandarts extends Component
             'code' => 8008,
             'message' => 'Staff role required to make this action',
         ],
+        'CREATOR_CANT_BE_REMOVED' => [
+            'code' => 8009,
+            'message' => 'Creator programmer cannot be removed from program',
+        ],
 
         // 9XXX - errors connected to DB
         'ERROR_SAVING_PROGRAM' => [
@@ -354,6 +358,10 @@ class ErrorStandarts extends Component
         'ERROR_DELETING_USER' => [
             'code' => 9008,
             'message' => 'Error deleting user',
+        ],
+        'ERROR_DELETING_PROGRAM_ROLE' => [
+            'code' => 9009,
+            'message' => 'Error deleting program role',
         ],
 
         'UNEXPECTED_ERROR' => [

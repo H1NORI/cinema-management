@@ -167,7 +167,6 @@ class ProgramController extends ApiController
     }
 
 
-    //todo add actionRemoveProgrammer
     public function actionAddProgrammer($id)
     {
         if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
@@ -187,6 +186,34 @@ class ProgramController extends ApiController
             return [
                 'success' => true,
                 'message' => 'Program programmer added successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+    public function actionRemoveProgrammer($id)
+    {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
+        $model = ProgramForm::findProgram($id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        $model->scenario = 'remove-programmer';
+
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->removeProgrammer()) {
+            return [
+                'success' => true,
+                'message' => 'Program programmer removed successfully',
                 'data' => [
                     'program' => $model,
                 ],
@@ -216,6 +243,34 @@ class ProgramController extends ApiController
             return [
                 'success' => true,
                 'message' => 'Program staff added successfully',
+                'data' => [
+                    'program' => $model,
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+    public function actionRemoveStaff($id)
+    {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+
+        $model = ProgramForm::findProgram($id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        $model->scenario = 'remove-staff';
+
+        $model->load(['ProgramForm' => Yii::$app->request->post()]);
+        if ($model->removeStaff()) {
+            return [
+                'success' => true,
+                'message' => 'Program staff removed successfully',
                 'data' => [
                     'program' => $model,
                 ],

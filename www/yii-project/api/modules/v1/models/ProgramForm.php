@@ -19,7 +19,7 @@ class ProgramForm extends Program
     public function rules()
     {
         return [
-            ['user_id', 'required', 'on' => ['add-programmer', 'add-staff'], 'message' => 'USER_ID_REQUIRED'],
+            ['user_id', 'required', 'on' => ['add-programmer', 'add-staff', 'remove-programmer', 'remove-staff'], 'message' => 'USER_ID_REQUIRED'],
 
             [['film_title', 'auditorium'], 'safe'],
 
@@ -64,6 +64,8 @@ class ProgramForm extends Program
         $scenarios['update'] = ['name', 'description', 'start_date', 'end_date'];
         $scenarios['add-programmer'] = ['user_id'];
         $scenarios['add-staff'] = ['user_id'];
+        $scenarios['remove-programmer'] = ['user_id'];
+        $scenarios['remove-staff'] = ['user_id'];
 
         // $scenarios['update-state'] = ['user_id'];
 
@@ -190,6 +192,31 @@ class ProgramForm extends Program
         }
 
         ProgramUserRoleForm::addRole($this->user_id, $this->id);
+
+        return true;
+    }
+
+    public function removeProgrammer()
+    {
+        if ($this->isStateAnnounced()) {
+            throw new ApiException('CANT_CHANGE_WHEN_ANNOUNCED');
+        }
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if ($this->user_id == $this->created_by) {
+            throw new ApiException('CREATOR_CANT_BE_REMOVED');
+        }
+
+        $role = ProgramUserRoleForm::findProgramUserRole($this->user_id, $this->id);
+
+        if (!$role) {
+            throw new ApiException('ERROR_DELETING_PROGRAM_ROLE');
+        }
+
+        $role->deleteRole();
 
         return true;
     }
