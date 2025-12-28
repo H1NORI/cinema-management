@@ -25,6 +25,7 @@ class AuthController extends ApiController
 
         return $behaviors;
     }
+    //todo add error if already loginned
 
     public function actionSignin()
     {
@@ -52,7 +53,8 @@ class AuthController extends ApiController
 
         throw new ApiException('UNEXPECTED_ERROR');
     }
-
+    
+    //todo add error if already loginned
     public function actionSignup()
     {
         $model = new SignupForm();

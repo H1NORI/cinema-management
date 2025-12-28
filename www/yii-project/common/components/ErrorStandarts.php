@@ -69,6 +69,18 @@ class ErrorStandarts extends Component
             'code' => 1015,
             'message' => 'Rejection reason cannot be empty',
         ],
+        'FILM_DURATION_REQUIRED' => [
+            'code' => 1016,
+            'message' => 'Film duration cannot be empty',
+        ],
+        'FILM_TITLE_REQUIRED' => [
+            'code' => 1017,
+            'message' => 'Film title cannot be empty',
+        ],
+        'AUDITORIUM_REQUIRED' => [
+            'code' => 1018,
+            'message' => 'Auditorium cannot be empty',
+        ],
 
         // 2XXX - invalid data
         'INVALID_PASSWORD' => [
@@ -143,9 +155,21 @@ class ErrorStandarts extends Component
             'code' => 2018,
             'message' => 'Status is not in range',
         ],
-        'INVALID_START_DATE_MUST_BE_BEFORE_END_DATE'  => [
+        'INVALID_START_DATE_MUST_BE_BEFORE_END_DATE' => [
             'code' => 2019,
-            'message' => 'Start date nust be before end date',
+            'message' => 'Start date must be before end date',
+        ],
+        'INVALID_START_TIME_MUST_BE_BEFORE_END_TIME' => [
+            'code' => 2020,
+            'message' => 'Start time must be before end time',
+        ],
+        'END_TIME_MUST_BE_GREATER_OR_EQUAL_FILM_DURATION' => [
+            'code' => 2021,
+            'message' => 'End time must be greater or equal to film duration',
+        ],
+        'INVALID_SCORE_RANGE' => [
+            'code' => 2022,
+            'message' => 'Invalid score range must be beetwen 0 and 100',
         ],
 
         // 3XXX - data is already taken
@@ -211,7 +235,7 @@ class ErrorStandarts extends Component
             'code' => 7004,
             'message' => 'Program cannot transition to that state',
         ],
-        'CAN_CHABGE_ONLY_WHEN_CREATED' => [
+        'CAN_CHANGE_ONLY_WHEN_CREATED' => [
             'code' => 7005,
             'message' => 'Can change screening only when state is CREATED',
         ],
@@ -223,7 +247,7 @@ class ErrorStandarts extends Component
             'code' => 7007,
             'message' => 'Program is not in ASSIGNMENT state',
         ],
-        'CAN_CHABGE_ONLY_WHEN_SUBMITTED' => [
+        'CAN_CHANGE_ONLY_WHEN_SUBMITTED' => [
             'code' => 7008,
             'message' => 'Can change screening only when state is SUBMITTED',
         ],
@@ -235,7 +259,7 @@ class ErrorStandarts extends Component
             'code' => 7010,
             'message' => 'Program is not in SCHEDULING or DECISION state',
         ],
-        'CAN_CHABGE_ONLY_WHEN_REVIWED' => [
+        'CAN_CHANGE_ONLY_WHEN_REVIEWED' => [
             'code' => 7011,
             'message' => 'Can change screening only when state is REVIEWED',
         ],
@@ -243,9 +267,13 @@ class ErrorStandarts extends Component
             'code' => 7012,
             'message' => 'Program is not in FINAL_PUBLICATION state',
         ],
-        'CAN_CHABGE_ONLY_WHEN_APPROVED' => [
+        'CAN_CHANGE_ONLY_WHEN_APPROVED' => [
             'code' => 7013,
             'message' => 'Can change screening only when state is APPROVED',
+        ],
+        'PROGRAM_NOT_IN_SUBMISSION_OR_CREATED' => [
+            'code' => 7006,
+            'message' => 'Program is not in SUBMISION state',
         ],
 
         // 8XXX - role based errors

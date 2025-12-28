@@ -20,15 +20,17 @@ class m251128_093256_create_screenings_table extends Migration
             'film_cast' => $this->text(),
             'film_genres' => $this->string(),
             'film_duration' => $this->integer(),
-
+            
             // auditorium
             'auditorium' => $this->string(),
-
+            
             // times
-            'start_time' => $this->dateTime(),
-            'end_time' => $this->dateTime(),
-
+            'start_time' => $this->time(),
+            'end_time' => $this->time(),
+            
             'rejection_reason' => $this->text(),
+            'score' => $this->integer(),
+            'comments' => $this->text(),
 
             // roles
             'submitter_id' => $this->integer()->notNull(),

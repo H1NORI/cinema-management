@@ -20,6 +20,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string|null $start_time
  * @property string|null $end_time
  * @property string|null $rejection_reason
+ * @property int|null $score
+ * @property string|null $comments
  * @property int $submitter_id
  * @property int|null $handler_id
  * @property int $created_at

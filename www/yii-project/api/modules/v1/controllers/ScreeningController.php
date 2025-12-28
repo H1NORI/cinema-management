@@ -26,6 +26,7 @@ class ScreeningController extends ApiController
         return $behaviors;
     }
 
+    //todo review if it works right(I dont think role check works right)
     public function actionIndex($program_id)
     {
         $screenings = ScreeningForm::find()->where(['program_id' => $program_id])->all();
@@ -46,8 +47,6 @@ class ScreeningController extends ApiController
             if ($role || $screening->state === $screening::STATE_SCHEDULED) {
                 $result[] = $screening->toPublicArray($role);
             }
-
-            $result[] = $screening->toPublicArray($role);
         }
 
         return [
@@ -82,8 +81,6 @@ class ScreeningController extends ApiController
             if ($role || $screening->state === $screening::STATE_SCHEDULED) {
                 $result[] = $screening->toPublicArray($role);
             }
-
-            $result[] = $screening->toPublicArray($role);
         }
 
         return [
@@ -140,7 +137,7 @@ class ScreeningController extends ApiController
 
     public function actionUpdate($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('SCREENING_DOESNT_EXIST');
@@ -164,15 +161,14 @@ class ScreeningController extends ApiController
 
     public function actionSubmit($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('SCREENING_DOESNT_EXIST');
         }
 
-        // $model->scenario = 'submit';
+        $model->scenario = 'submit';
 
-        $model->load(['ScreeningForm' => Yii::$app->request->post()]);
         if ($model->submitScreening()) {
             return [
                 'success' => true,
@@ -188,7 +184,7 @@ class ScreeningController extends ApiController
 
     public function actionWithdraw($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('SCREENING_DOESNT_EXIST');
@@ -196,13 +192,11 @@ class ScreeningController extends ApiController
 
         $model->scenario = 'withdraw';
 
-        $model->load(['ScreeningForm' => Yii::$app->request->post()]);
         if ($model->withdrawScreening()) {
             return [
                 'success' => true,
-                'message' => 'Screening submitted successfully',
+                'message' => 'Screening withdrawed successfully',
                 'data' => [
-                    'screening' => $model,
                 ],
             ];
         }
@@ -210,9 +204,9 @@ class ScreeningController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
-    public function actionAsignHandler($id)
+    public function actionAssignHandler($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findScreening($id);
 
         if ($model == null) {
             throw new ApiException('SCREENING_DOESNT_EXIST');
@@ -247,10 +241,6 @@ class ScreeningController extends ApiController
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
-        }
-
         $model->scenario = 'review';
 
         $model->load(['ScreeningForm' => Yii::$app->request->post()]);
@@ -258,6 +248,29 @@ class ScreeningController extends ApiController
             return [
                 'success' => true,
                 'message' => 'Screening review added successfully',
+                'data' => [
+                    'screening' => $model,
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
+
+    public function actionApprove($id)
+    {
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
+
+        if ($model == null) {
+            throw new ApiException('PROGRAM_DOESNT_EXIST');
+        }
+
+        $model->scenario = 'approve';
+
+        if ($model->approveScreening()) {
+            return [
+                'success' => true,
+                'message' => 'Screening approved successfully',
                 'data' => [
                 ],
             ];
@@ -268,7 +281,8 @@ class ScreeningController extends ApiController
 
     public function actionReject($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        //todo now only submitter can access it, not other PROGRAMMERS
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');
@@ -295,7 +309,7 @@ class ScreeningController extends ApiController
 
     public function actionFinalSubmit($id)
     {
-        $model = ScreeningForm::findUserScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
 
         if ($model == null) {
             throw new ApiException('PROGRAM_DOESNT_EXIST');

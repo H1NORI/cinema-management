@@ -70,6 +70,12 @@ return [
                     'extraPatterns' => [
                         'GET <program_id:\d+>' => 'index',
                         'GET index/<program_id:\d+>' => 'index',
+                        'PUT <id:\d+>/submit' => 'submit',
+                        'DELETE <id:\d+>/withdraw' => 'withdraw',
+                        'PUT <id:\d+>/assign-handler' => 'assign-handler',
+                        'PUT <id:\d+>/review' => 'review',
+                        'PUT <id:\d+>/approve' => 'approve',
+                        'PUT <id:\d+>/reject' => 'reject',
                     ],
                 ],
                 [
