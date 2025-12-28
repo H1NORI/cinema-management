@@ -145,6 +145,23 @@ class ProgramForm extends Program
             throw ApiException::fromModel($this);
         }
 
+        if ($this->isStateDecision()) {
+            $transaction = Yii::$app->db->beginTransaction();
+
+            try {
+                if (!$this->save(false)) {
+                    throw new ApiException('ERROR_SAVING_PROGRAM');
+                }
+
+                ScreeningForm::autoRejectScreenings($this->id);
+                $transaction->commit();
+                return true;
+            } catch (Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+        }
+
         if (!$this->save(false)) {
             throw new ApiException('ERROR_SAVING_PROGRAM');
         }

@@ -113,6 +113,8 @@ class ScreeningForm extends Screening
 
         $scenarios['reject'] = ['rejection_reason'];
 
+        // $scenarios['final-submit'] = ['film_cast', 'film_genres'];
+
         return $scenarios;
     }
 
@@ -140,6 +142,25 @@ class ScreeningForm extends Screening
     public static function findScreening(int $id)
     {
         return self::findOne(['id' => $id]);
+    }
+
+    public static function autoRejectScreenings(int $programId)
+    {
+        $screenings = Screening::find()
+            ->where([
+                'program_id' => $programId,
+                'state' => Screening::STATE_APPROVED,
+            ])
+            ->all();
+
+        foreach ($screenings as $screening) {
+            $screening->state = Screening::STATE_REJECTED;
+            $screening->rejection_reason = 'Final submission was not provided before decision phase';
+
+            if (!$screening->save(false)) {
+                throw new ApiException('ERROR_SAVING_SCREENING');
+            }
+        }
     }
 
     public function createScreening(int $userId)
@@ -290,21 +311,11 @@ class ScreeningForm extends Screening
             throw ApiException::fromModel($this);
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
-
-        try {
-            if (!$this->save(false)) {
-                throw new ApiException('ERROR_SAVING_SCREENING');
-            }
-
-            //we can remove it
-            ScreeningReviewForm::addReview($this->handler_id, $this->id, $this->score, $this->comments);
-            $transaction->commit();
-            return true;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_SCREENING');
         }
+
+        return true;
     }
 
     public function approveScreening()
@@ -315,8 +326,9 @@ class ScreeningForm extends Screening
 
         $program = Program::findOne($this->program_id);
 
-        if (!$program || $program->state !== Program::STATE_REVIEW) {
-            throw new ApiException('PROGRAM_NOT_IN_REVIEW');
+        // if (!$program || $program->state !== Program::STATE_SCHEDULING) {
+        if (!$program || !($program->state === Program::STATE_SCHEDULING || $program->state === Program::STATE_DECISION)) {
+            throw new ApiException('PROGRAM_NOT_IN_SCHEDULING_OR_DECISION');
         }
 
         if (!$this->canTransitionToNextState()) {
@@ -339,9 +351,8 @@ class ScreeningForm extends Screening
     //TODO add Automatic by system: In DECISION, any approved but not finally submitted screening is auto-rejected.  
     public function rejectScreening()
     {
-        //todo not sure about this IF STATEMENT
-        if (!$this->isStateReviewed()) {
-            throw new ApiException('CAN_CHANGE_ONLY_WHEN_REVIEWED');
+        if (!($this->isStateReviewed() || $this->isStateFinallySubmitted())) {
+            throw new ApiException('CAN_CHANGE_ONLY_WHEN_REVIEWED_OR_FINALLY_SUBMITTED');
         }
 
         $program = Program::findOne($this->program_id);
@@ -349,6 +360,8 @@ class ScreeningForm extends Screening
         if (!$program || !($program->state === Program::STATE_SCHEDULING || $program->state === Program::STATE_DECISION)) {
             throw new ApiException('PROGRAM_NOT_IN_SCHEDULING_OR_DECISION');
         }
+
+        $this->state = self::STATE_REJECTED;
 
         if (!$this->validate()) {
             throw ApiException::fromModel($this);
@@ -371,6 +384,35 @@ class ScreeningForm extends Screening
 
         if (!$program || $program->state !== Program::STATE_FINAL_PUBLICATION) {
             throw new ApiException('PROGRAM_NOT_IN_FINAL_PUBLICATION');
+        }
+
+        if (!$this->canTransitionToNextState()) {
+            throw new ApiException('INVALID_STATE_TRANSITION');
+        }
+
+        $this->state += 1;
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        if (!$this->save(false)) {
+            throw new ApiException('ERROR_SAVING_SCREENING');
+        }
+
+        return true;
+    }
+
+    public function acceptScreening()
+    {
+        if (!$this->isStateFinallySubmitted()) {
+            throw new ApiException('CAN_CHANGE_ONLY_WHEN_FINALLY_SUBMITTED');
+        }
+
+        $program = Program::findOne($this->program_id);
+
+        if (!$program || $program->state !== Program::STATE_DECISION) {
+            throw new ApiException('PROGRAM_NOT_IN_DECISION');
         }
 
         if (!$this->canTransitionToNextState()) {

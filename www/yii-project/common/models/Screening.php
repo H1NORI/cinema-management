@@ -43,8 +43,9 @@ class Screening extends \yii\db\ActiveRecord
     const STATE_SUBMITTED = 1;
     const STATE_REVIEWED = 2;
     const STATE_APPROVED = 3;
-    const STATE_SCHEDULED = 4;
-    const STATE_REJECTED = 5;
+    const STATE_FINALLY_SUBMITTED = 4;
+    const STATE_SCHEDULED = 5;
+    const STATE_REJECTED = 6;
 
 
     //TODO rewrite transitions
@@ -52,7 +53,8 @@ class Screening extends \yii\db\ActiveRecord
         self::STATE_CREATED => [self::STATE_SUBMITTED],
         self::STATE_SUBMITTED => [self::STATE_REVIEWED],
         self::STATE_REVIEWED => [self::STATE_APPROVED, self::STATE_REJECTED],
-        self::STATE_APPROVED => [self::STATE_SCHEDULED],
+        self::STATE_APPROVED => [self::STATE_FINALLY_SUBMITTED],
+        self::STATE_FINALLY_SUBMITTED => [self::STATE_SCHEDULED],
         self::STATE_SCHEDULED => [self::STATE_REJECTED],
     ];
 
@@ -177,6 +179,7 @@ class Screening extends \yii\db\ActiveRecord
             self::STATE_SUBMITTED => 'SUBMITTED',
             self::STATE_REVIEWED => 'REVIEWED',
             self::STATE_APPROVED => 'APPROVED',
+            self::STATE_FINALLY_SUBMITTED => 'FINALLY SUBMITTED',
             self::STATE_SCHEDULED => 'SCHEDULED',
             self::STATE_REJECTED => 'REJECTED',
         ];
@@ -240,6 +243,19 @@ class Screening extends \yii\db\ActiveRecord
     public function setStateToApproved()
     {
         $this->state = self::STATE_APPROVED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStateFinallySubmitted()
+    {
+        return $this->state === self::STATE_FINALLY_SUBMITTED;
+    }
+
+    public function setStateToFinallySubmitted()
+    {
+        $this->state = self::STATE_FINALLY_SUBMITTED;
     }
 
     /**

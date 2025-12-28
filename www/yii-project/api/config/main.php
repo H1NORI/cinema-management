@@ -76,6 +76,8 @@ return [
                         'PUT <id:\d+>/review' => 'review',
                         'PUT <id:\d+>/approve' => 'approve',
                         'PUT <id:\d+>/reject' => 'reject',
+                        'PUT <id:\d+>/final-submit' => 'final-submit',
+                        'PUT <id:\d+>/accept' => 'accept',
                     ],
                 ],
                 [

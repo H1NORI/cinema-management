@@ -272,8 +272,20 @@ class ErrorStandarts extends Component
             'message' => 'Can change screening only when state is APPROVED',
         ],
         'PROGRAM_NOT_IN_SUBMISSION_OR_CREATED' => [
-            'code' => 7006,
-            'message' => 'Program is not in SUBMISION state',
+            'code' => 7014,
+            'message' => 'Program is not in SUBMISION or CREATED state',
+        ],
+        'CAN_CHANGE_ONLY_WHEN_FINALLY_SUBMITTED' => [
+            'code' => 7015,
+            'message' => 'Can change screening only when state is FINALLY_SUBMITTED',
+        ],
+        'PROGRAM_NOT_IN_DECISION' => [
+            'code' => 7016,
+            'message' => 'Program is not in DECISION state',
+        ],
+        'CAN_CHANGE_ONLY_WHEN_REVIEWED_OR_FINALLY_SUBMITTED' => [
+            'code' => 7017,
+            'message' => 'Can change screening only when state is REVIEWED or FINALLY_SUBMITTED',
         ],
 
         // 8XXX - role based errors

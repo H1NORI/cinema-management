@@ -54,10 +54,6 @@ class ScreeningReviewForm extends ScreeningReview
 
     public static function addReview(int $reviewerId, int $screeningId, int $score, string $comments)
     {
-        if (self::existScreeningReview($reviewerId, $screeningId)) {
-            throw new ApiException('PROGRAM_SCREENING_REVIEW_EXIST');
-        }
-
         $model = new ScreeningReview;
         $model->reviewer_id = $reviewerId;
         $model->screening_id = $screeningId;

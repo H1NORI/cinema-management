@@ -265,7 +265,7 @@ class ScreeningController extends ApiController
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
-        $model->scenario = 'approve';
+        // $model->scenario = 'approve';
 
         if ($model->approveScreening()) {
             return [
@@ -281,20 +281,19 @@ class ScreeningController extends ApiController
 
     public function actionReject($id)
     {
-        //todo now only submitter can access it, not other PROGRAMMERS
-        $model = ScreeningForm::findSubmitterScreening(Yii::$app->user->id, $id);
+        $model = ScreeningForm::findScreening($id);
 
         if ($model == null) {
-            throw new ApiException('PROGRAM_DOESNT_EXIST');
+            throw new ApiException('SCREENING_DOESNT_EXIST');
         }
 
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $model->program_id)) {
             throw new ApiException('PROGRAMER_ROLE_REQUIRED');
         }
 
         $model->scenario = 'reject';
 
-        // $model->load(['ScreeningForm' => Yii::$app->request->post()]);
+        $model->load(['ScreeningForm' => Yii::$app->request->post()]);
         if ($model->rejectScreening()) {
             return [
                 'success' => true,
@@ -315,11 +314,7 @@ class ScreeningController extends ApiController
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
-        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {
-            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
-        }
-
-        $model->scenario = 'final-submit';
+        // $model->scenario = 'final-submit';
 
         // $model->load(['ScreeningForm' => Yii::$app->request->post()]);
         if ($model->finalSubmitScreening()) {
@@ -334,10 +329,30 @@ class ScreeningController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
+    public function actionAccept($id)
+    {
+        $model = ScreeningForm::findScreening($id);
 
-    // todo Screening acceptance (final scheduling): In DECISION (respective program’s state), mark
-// approved & finally submitted screening as SCHEDULED (final). Function can only be accessed by
-// a PROGRAMMER.
+        if ($model == null) {
+            throw new ApiException('SCREENING_DOESNT_EXIST');
+        }
 
+        if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $model->program_id)) {
+            throw new ApiException('PROGRAMER_ROLE_REQUIRED');
+        }
+        // $model->scenario = 'accept';
+
+        // $model->load(['ScreeningForm' => Yii::$app->request->post()]);
+        if ($model->acceptScreening()) {
+            return [
+                'success' => true,
+                'message' => 'Screening finally accepted successfully',
+                'data' => [
+                ],
+            ];
+        }
+
+        throw new ApiException('UNEXPECTED_ERROR');
+    }
 
 }
