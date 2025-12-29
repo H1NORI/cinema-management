@@ -71,6 +71,11 @@ class ProgramUserRoleForm extends ProgramUserRole
         return self::find()->where(['user_id' => $userId, 'program_id' => $programId, 'role' => self::ROLE_PROGRAMMER])->one();
     }
 
+    public static function findProgramUserRoleStaff(int $userId, int $programId)
+    {
+        return self::find()->where(['user_id' => $userId, 'program_id' => $programId, 'role' => self::ROLE_STAFF])->one();
+    }
+
     public static function addRole(int $userId, int $programId, string $role = self::ROLE_PROGRAMMER)
     {
         if (self::existProgramUserRole($userId, $programId)) {

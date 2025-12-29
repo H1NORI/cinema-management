@@ -247,6 +247,27 @@ class ProgramForm extends Program
         return true;
     }
 
+    public function removeStaff()
+    {
+        if ($this->state >= Program::STATE_SUBMISSION) {
+            throw new ApiException('CANT_CHANGE_WHEN_SUBMISSION');
+        }
+
+        if (!$this->validate()) {
+            throw ApiException::fromModel($this);
+        }
+
+        $role = ProgramUserRoleForm::findProgramUserRoleStaff($this->user_id, $this->id);
+
+        if (!$role) {
+            throw new ApiException('ERROR_DELETING_PROGRAM_ROLE');
+        }
+
+        $role->deleteRole();
+
+        return true;
+    }
+
 
     public function search($params, $formName = null)
     {
