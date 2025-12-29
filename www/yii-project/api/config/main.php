@@ -60,6 +60,8 @@ return [
                     'extraPatterns' => [
                         'PUT <id:\d+>/add-programmer' => 'add-programmer',
                         'PUT <id:\d+>/add-staff' => 'add-staff',
+                        'PUT <id:\d+>/remove-programmer' => 'remove-programmer',
+                        'PUT <id:\d+>/remove-staff' => 'remove-staff',
                         'PUT <id:\d+>/update-state' => 'update-state',
                     ],
                 ],

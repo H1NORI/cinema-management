@@ -48,7 +48,6 @@ class Screening extends \yii\db\ActiveRecord
     const STATE_REJECTED = 6;
 
 
-    //TODO rewrite transitions
     public static array $allowedStateTransitions = [
         self::STATE_CREATED => [self::STATE_SUBMITTED],
         self::STATE_SUBMITTED => [self::STATE_REVIEWED],

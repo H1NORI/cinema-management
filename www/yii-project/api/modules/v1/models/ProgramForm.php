@@ -223,7 +223,6 @@ class ProgramForm extends Program
 
     public function addStaff()
     {
-        //TODO возможно стоит доработать
         if ($this->state >= Program::STATE_SUBMISSION) {
             throw new ApiException('CANT_CHANGE_WHEN_SUBMISSION');
         }
