@@ -223,7 +223,6 @@ class ProgramController extends ApiController
         throw new ApiException('UNEXPECTED_ERROR');
     }
 
-    //todo add actionRemoveStaff
     public function actionAddStaff($id)
     {
         if (!ProgramUserRoleForm::existProgramUserRoleProgrammer(Yii::$app->user->id, $id)) {

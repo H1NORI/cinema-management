@@ -180,8 +180,6 @@ class ScreeningForm extends Screening
             throw new ApiException('PROGRAM_NOT_IN_SUBMISSION_OR_CREATED');
         }
 
-        //todo возможно добавить в программу только если CREATED или SUBMISSION
-
         $this->submitter_id = $userId;
         $this->setStateToCreated();
 
@@ -348,7 +346,6 @@ class ScreeningForm extends Screening
         return true;
     }
 
-    //TODO add Automatic by system: In DECISION, any approved but not finally submitted screening is auto-rejected.  
     public function rejectScreening()
     {
         if (!($this->isStateReviewed() || $this->isStateFinallySubmitted())) {
