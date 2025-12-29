@@ -57,9 +57,10 @@ class UserCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'ADMIN';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->adminJwt = $user->access_token;
         $user->save();
 
-        $this->adminJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->programmerId) ?? new User();
         $user->id = $this->programmerId;
@@ -69,9 +70,10 @@ class UserCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->programmerJwt = $user->access_token;
         $user->save();
 
-        $this->programmerJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->staffId) ?? new User();
         $user->id = $this->staffId;
@@ -81,9 +83,10 @@ class UserCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->staffJwt = $user->access_token;
         $user->save();
 
-        $this->staffJwt = SigninForm::generateJwt($user);
 
 
         $user = User::findOne($this->secondProgrammerId) ?? new User();
@@ -94,10 +97,9 @@ class UserCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->secondProgrammerJwt = $user->access_token;
         $user->save();
-
-        $this->secondProgrammerJwt = SigninForm::generateJwt($user);
-
     }
 
     public function deleteUsers(FunctionalTester $I)
@@ -342,12 +344,11 @@ class UserCest
                     // 'email',
                     // 'token',
                 ],
-                'refresh_token' => [],
             ],
         ]);
 
         $response = json_decode($I->grabResponse(), true);
-        $this->newUserJwt = $response['data']['user']['token'] ?? null;
+        $this->newUserJwt = $response['data']['user']['access_token'] ?? null;
     }
 
     public function signinAdmin(FunctionalTester $I)
@@ -365,12 +366,12 @@ class UserCest
                     'id' => $this->adminId,
                     'email' => 'test_admin@test.com',
                 ],
-                'refresh_token' => [],
+
             ],
         ]);
 
         $response = json_decode($I->grabResponse(), true);
-        $this->newAdminJwt = $response['data']['user']['token'] ?? null;
+        $this->newAdminJwt = $response['data']['user']['access_token'] ?? null;
     }
 
     public function updateStatusOldAdminToken(FunctionalTester $I)
@@ -599,7 +600,9 @@ class UserCest
     public function updateUserNonAdminCanOnlyUpdateOwnProfile(FunctionalTester $I)
     {
         $user = User::findOne($this->staffId);
-        $this->staffJwt = SigninForm::generateJwt($user);
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->staffJwt = $user->access_token;
+        $user->save();
 
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
         $I->sendPUT('/user/' . $this->programmerId, [
@@ -761,7 +764,9 @@ class UserCest
     public function deleteUserCantDeleteAdmin(FunctionalTester $I)
     {
         $user = User::findOne($this->staffId);
-        $this->staffJwt = SigninForm::generateJwt($user);
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->staffJwt = $user->access_token;
+        $user->save();
 
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
         $I->sendDELETE('/user/' . $this->adminId, []);
@@ -798,7 +803,7 @@ class UserCest
     public function deleteUserSuccess(FunctionalTester $I)
     {
         $user = new User();
-        $user->email = 'temp_user@test.com';
+        $user->email = 'temp_user@gmail.com';
         $user->username = 'Temp_user';
         $user->password_hash = Yii::$app->security->generatePasswordHash('Net12345_');
         $user->auth_key = Yii::$app->security->generateRandomString();

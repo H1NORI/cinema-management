@@ -12,7 +12,7 @@ services:
     depends_on:
       - php
     extra_hosts:
-      - "api.cinema:172.20.0.2"
+      - "api.cinema:host-gateway"
   php:
     container_name: cinema_managment_php
     build: ./images/php81fpm
@@ -23,6 +23,8 @@ services:
       - cinema_managment
     depends_on:
       - mysql
+    extra_hosts:
+      - "api.cinema:host-gateway"
   mysql:
     container_name: cinema_managment_mysql
     image: mysql:latest
@@ -51,10 +53,10 @@ services:
       - mysql
     networks:
       - cinema_managment
-      
 
 networks:
   cinema_managment:
+
 
 volumes:
   db:
