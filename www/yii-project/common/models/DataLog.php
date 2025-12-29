@@ -104,7 +104,6 @@ class DataLog extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    //TODO I should replace this code into special DataLogFORM for backend
     public function getEventName()
     {
         return match ($this->event) {
@@ -114,7 +113,6 @@ class DataLog extends ActiveRecord
             default => 'Unknown',
         };
     }
-    //TODO I should replace this code into special DataLogFORM for backend
     public static function getEventFilters() {
         return [
             self::EVENT_INSERT => 'Insert',

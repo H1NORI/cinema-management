@@ -42,7 +42,6 @@ class ScreeningForm extends Screening
             ['film_title', 'required', 'on' => ['submit'], 'message' => 'FILM_TITLE_REQUIRED'],
             ['film_title', 'string', 'max' => 255, 'message' => 'INVALID_FILM_TITLE'],
 
-            // Film optional fields (strings with max length)
             //TODO make them required????
             ['film_cast', 'string', 'message' => 'INVALID_FILM_CAST'],
             ['film_genres', 'string', 'max' => 255, 'message' => 'INVALID_FILM_GENRES'],
