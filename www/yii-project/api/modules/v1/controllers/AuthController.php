@@ -43,10 +43,9 @@ class AuthController extends ApiController
                     'user' => [
                         'id' => $model->getUserId(),
                         'email' => $model->getUserEmail(),
-                        'token' => $model->token,
+                        'access_token' => $model->token,
                         //TODO add more fields?
                     ],
-                    'refresh_token' => $model->refreshToken,
                 ],
             ];
         }
