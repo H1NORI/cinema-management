@@ -293,7 +293,7 @@ class ProgramForm extends Program
         $query
             ->andFilterWhere(['like', 'program.name', $this->name])
             ->andFilterWhere(['like', 'program.description', $this->description])
-            //todo по идеи тут ошибка так как мы можем получить запись через название Screening которое еще не публично
+            ->andFilterWhere(['like', 'screenings.state', ScreeningForm::STATE_SCHEDULED])
             ->andFilterWhere(['like', 'screenings.film_title', $this->film_title])
             ->andFilterWhere(['like', 'screenings.auditorium', $this->auditorium]);
 
