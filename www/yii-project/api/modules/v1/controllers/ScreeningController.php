@@ -105,13 +105,29 @@ class ScreeningController extends ApiController
             throw new ApiException('PROGRAM_DOESNT_EXIST');
         }
 
+        $userId = Yii::$app->user->id;
+        $isGuest = Yii::$app->user->isGuest;
+        $result = [];
+
+        if (!$isGuest && ProgramUserRoleForm::existProgramUserRoleProgrammer($userId, $model->program_id)) {
+            $result = $model->toPublicArrayView(ProgramUserRoleForm::ROLE_PROGRAMMER);
+        } else {
+            if (!$isGuest) {
+                if (ScreeningForm::existSubmitterScreening($userId, $id) || ScreeningForm::existHandlerScreening($userId, $id)) {
+                    $result = $model->toPublicArrayView(ProgramUserRoleForm::ROLE_STAFF);
+                }
+            } else if ($model->state === $model::STATE_SCHEDULED) {
+                $result = $model->toPublicArrayView(null);
+            }
+        }
+
         $userRole = Yii::$app->user->id ? ProgramUserRoleForm::findProgramUserRole(Yii::$app->user->id, $model->program_id)?->role : null;
 
         return [
             'success' => true,
             'message' => 'Screening retrived',
             'data' => [
-                'screening' => $model->toPublicArray($userRole),
+                'screening' => $result,
             ],
         ];
     }

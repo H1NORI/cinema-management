@@ -367,6 +367,7 @@ class ProgramForm extends Program
         foreach ($this->programUserRoles as $programUserRole) {
             $members[] = [
                 'id' => $programUserRole->user->id,
+                'username' => $programUserRole->user->username,
                 'email' => $programUserRole->user->email,
                 'role' => $programUserRole->role,
             ];

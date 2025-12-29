@@ -523,6 +523,31 @@ class ScreeningForm extends Screening
         return $data;
     }
 
+    public function toPublicArrayView($role)
+    {
+        $data = [
+            'id' => $this->id,
+            'film_title' => $this->film_title,
+            'film_genres' => $this->film_genres,
+            'film_cast' => $this->film_cast,
+            'film_duration' => $this->film_duration,
+            'auditorium' => $this->auditorium,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+        ];
+
+        if ($role == ProgramUserRoleForm::ROLE_PROGRAMMER || $role == ProgramUserRoleForm::ROLE_STAFF) {
+            $data['state'] = $this->displayState();
+            $data['rejection_reason'] = $this->rejection_reason;
+            $data['submitter_id'] = $this->submitter_id;
+            $data['handler_id'] = $this->handler_id;
+            $data['created_at'] = $this->created_at;
+            $data['updated_at'] = $this->updated_at;
+        }
+
+        return $data;
+    }
+
 
     public function canTransitionToNextState()
     {
