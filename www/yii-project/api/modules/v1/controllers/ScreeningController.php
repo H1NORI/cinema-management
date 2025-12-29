@@ -26,7 +26,6 @@ class ScreeningController extends ApiController
         return $behaviors;
     }
 
-    //todo review if it works right(I dont think role check works right)
     public function actionIndex($program_id)
     {
         $screenings = ScreeningForm::find()->where(['program_id' => $program_id])->all();
@@ -36,16 +35,19 @@ class ScreeningController extends ApiController
 
         $result = [];
 
-        foreach ($screenings as $screening) {
-            $role = null;
-
-            if (!$isGuest) {
-                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
-                $role = $userProgramRole?->role;
+        if (!$isGuest && ProgramUserRoleForm::existProgramUserRoleProgrammer($userId, $program_id)) {
+            foreach ($screenings as $screening) {
+                $result[] = $screening->toPublicArray(ProgramUserRoleForm::ROLE_PROGRAMMER);
             }
-
-            if ($role || $screening->state === $screening::STATE_SCHEDULED) {
-                $result[] = $screening->toPublicArray($role);
+        } else {
+            foreach ($screenings as $screening) {
+                if (!$isGuest) {
+                    if (ScreeningForm::existSubmitterScreening($userId, $screening->id) || ScreeningForm::existHandlerScreening($userId, $screening->id)) {
+                        $result[] = $screening->toPublicArray(ProgramUserRoleForm::ROLE_STAFF);
+                    }
+                } else if ($screening->state === $screening::STATE_SCHEDULED) {
+                    $result[] = $screening->toPublicArray(null);
+                }
             }
         }
 
@@ -70,16 +72,19 @@ class ScreeningController extends ApiController
 
         $result = [];
 
-        foreach ($screenings as $screening) {
-            $role = null;
-
-            if (!$isGuest) {
-                $userProgramRole = ProgramUserRoleForm::findProgramUserRole($userId, $screening->program_id);
-                $role = $userProgramRole?->role;
+        if (!$isGuest && ProgramUserRoleForm::existProgramUserRoleProgrammer($userId, $model->program_id)) {
+            foreach ($screenings as $screening) {
+                $result[] = $screening->toPublicArray(ProgramUserRoleForm::ROLE_PROGRAMMER);
             }
-
-            if ($role || $screening->state === $screening::STATE_SCHEDULED) {
-                $result[] = $screening->toPublicArray($role);
+        } else {
+            foreach ($screenings as $screening) {
+                if (!$isGuest) {
+                    if (ScreeningForm::existSubmitterScreening($userId, $screening->id) || ScreeningForm::existHandlerScreening($userId, $screening->id)) {
+                        $result[] = $screening->toPublicArray(ProgramUserRoleForm::ROLE_STAFF);
+                    }
+                } else if ($screening->state === $screening::STATE_SCHEDULED) {
+                    $result[] = $screening->toPublicArray(null);
+                }
             }
         }
 

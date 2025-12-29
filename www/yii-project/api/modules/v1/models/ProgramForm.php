@@ -326,6 +326,7 @@ class ProgramForm extends Program
 
         if ($role == ProgramUserRole::ROLE_PROGRAMMER || $role == ProgramUserRole::ROLE_STAFF) {
             $data['state'] = $this->displayState();
+            $data['created_by'] = $this->created_by;
             $data['created_at'] = $this->created_at;
             $data['updated_at'] = $this->updated_at;
         }

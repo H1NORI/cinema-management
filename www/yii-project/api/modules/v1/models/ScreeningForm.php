@@ -14,16 +14,16 @@ class ScreeningForm extends Screening
 {
 
     public $user_id;
-    public $isTimetable;
+    public bool $is_timetable = false;
 
 
     public function rules()
     {
         return [
-            [['isTimetable'], 'safe'],
+            [['is_timetable'], 'safe'],
 
             // Program ID validation
-            ['program_id', 'required', 'on' => ['create', 'update', 'submit'], 'message' => 'PROGRAM_ID_REQUIRED'],
+            ['program_id', 'required', 'on' => ['search', 'create', 'update', 'submit'], 'message' => 'PROGRAM_ID_REQUIRED'],
             ['program_id', 'integer', 'message' => 'INVALID_PROGRAM_ID_TYPE'],
 
             // Handler ID validation (required for assign-handler scenario)
@@ -100,7 +100,7 @@ class ScreeningForm extends Screening
     {
         $scenarios = parent::scenarios();
 
-        $scenarios['search'] = ['film_title', 'film_cast', 'film_genres', 'start_time', 'end_time', 'isTimetable'];
+        $scenarios['search'] = ['program_id', 'film_title', 'film_cast', 'film_genres', 'start_time', 'end_time', 'is_timetable'];
 
         $scenarios['create'] = ['program_id', 'film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time'];
         $scenarios['update'] = ['film_title', 'film_cast', 'film_genres', 'film_duration', 'auditorium', 'start_time', 'end_time'];
@@ -131,17 +131,27 @@ class ScreeningForm extends Screening
 
     public static function findSubmitterScreening(int $submitterId, int $id)
     {
-        return self::findOne(['id' => $id, 'submitter_id' => $submitterId]);
+        return self::findOne(['submitter_id' => $submitterId, 'id' => $id]);
     }
 
     public static function findHandlerScreening(int $handlerId, int $id)
     {
-        return self::findOne(['id' => $id, 'handler_id' => $handlerId]);
+        return self::findOne(['handler_id' => $handlerId, 'id' => $id]);
     }
 
     public static function findScreening(int $id)
     {
         return self::findOne(['id' => $id]);
+    }
+
+    public static function existSubmitterScreening(int $submitterId, int $id)
+    {
+        return self::find()->where(['submitter_id' => $submitterId, 'id' => $id])->exists();
+    }
+
+    public static function existHandlerScreening(int $handlerId, int $id)
+    {
+        return self::find()->where(['handler_id' => $handlerId, 'id' => $id])->exists();
     }
 
     public static function autoRejectScreenings(int $programId)
@@ -446,7 +456,8 @@ class ScreeningForm extends Screening
         // ]);
 
         if (!$this->validate()) {
-            return [];
+            // return [];
+            throw ApiException::fromModel($this);
         }
 
         if ($this->film_title) {
@@ -467,7 +478,7 @@ class ScreeningForm extends Screening
             $query->andWhere(['<=', 'end_time', $this->end_time]);
         }
 
-        if ($this->isTimetable) {
+        if ($this->is_timetable) {
             $query->orderBy(['start_time' => SORT_ASC]);
         } else {
             $query->orderBy([
