@@ -68,7 +68,7 @@ $dynamicItems = array_map(function ($link) {
                     // ['label' => 'Focus Schedules',  'icon' => 'calendar', 'url' => ['/focus-schedule']],
                     // ['label' => 'Tasks',  'icon' => 'tasks', 'url' => ['/task']],
                     // ['label' => 'RBAC',  'icon' => 'landmark', 'url' => ['/rbac']],
-                    ['label' => 'Refresh Tokens',  'icon' => 'fingerprint', 'url' => ['/refresh-token']],
+                    // ['label' => 'Refresh Tokens',  'icon' => 'fingerprint', 'url' => ['/refresh-token']],
                     ['label' => 'Links', 'icon' => 'link', 'url' => ['/link']],
                     ['label' => 'SETTINGS', 'header' => true],
                     ['label' => 'Gii',  'icon' => 'file-code', 'url' => ['/gii'], 'target' => '_blank'],

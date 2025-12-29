@@ -84,28 +84,6 @@ class SigninForm extends Model
     private function getAuthData($sendCode = false)
     {
         $this->token = self::generateJwt($this->_user);
-        $this->refreshToken = $this->generateRefreshToken($this->_user);
-
-        // UserToken::clearToken($this->getUser()->getId(), $userToken->token);
-
-        // if ($sendCode) {
-        //     $code = \Yii::$app->respStandarts->generateCode();
-
-        //     if ($this->saveOTPCode($code)) {
-        //         $this->sendEmail($code);
-        //     }
-        // }
-
-        // $this->responseData = [
-        //     "response" => [
-        //         "status" => true
-        //     ],
-        //     "user_id" => (int) $this->_user->id,
-        //     "email" => $this->_user->email,
-        //     "tokenData" => [
-        //         "token" => $tokenModel->token
-        //     ]
-        // ];
 
         return $this->token;
     }
@@ -132,36 +110,6 @@ class SigninForm extends Model
             ->getToken($signer, $key);
 
         return $token->toString();
-    }
-
-    private function generateRefreshToken($user, $impersonator = null)
-    {
-        $refreshToken = Yii::$app->security->generateRandomString(200);
-
-        // TODO: Don't always regenerate - you could reuse existing one if user already has one with same IP and user agent
-        $userRefreshToken = new UserRefreshToken([
-            'urf_userID' => $user->id,
-            'urf_token' => $refreshToken,
-            'urf_ip' => Yii::$app->request->userIP,
-            'urf_user_agent' => Yii::$app->request->userAgent,
-            'urf_created' => gmdate('Y-m-d H:i:s'),
-        ]);
-        if (!$userRefreshToken->save()) {
-            $this->addError('email', 1005);
-            return false;
-        }
-
-        // Send the refresh-token to the user in a HttpOnly cookie that Javascript can never read and that's limited by path
-        Yii::$app->response->cookies->add(new \yii\web\Cookie([
-            'name' => 'refresh-token',
-            'value' => $refreshToken,
-            'httpOnly' => true,
-            'sameSite' => 'none',
-            'secure' => true,
-            'path' => '/v1/auth/refresh-token',  //endpoint URI for renewing the JWT token using this refresh-token, or deleting refresh-token
-        ]));
-
-        return $userRefreshToken;
     }
 
     public function validatePassword($attribute, $params)
