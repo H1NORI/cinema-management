@@ -106,7 +106,7 @@ class ProgramController extends ApiController
                 'success' => true,
                 'message' => 'Program retrived',
                 'data' => [
-                    'program' => $program->toPublicArray($userRole),
+                    'program' => $program->toPublicArrayView($userRole),
                 ],
             ];
         }

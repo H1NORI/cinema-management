@@ -119,7 +119,7 @@ class Program extends \yii\db\ActiveRecord
      */
     public function getProgramUserRoles()
     {
-        return $this->hasMany(ProgramUserRole::class, ['program_id' => 'id']);
+        return $this->hasMany(ProgramUserRole::class, ['program_id' => 'id'])->with('user');
     }
 
     /**

@@ -334,6 +334,47 @@ class ProgramForm extends Program
         return $data;
     }
 
+    public function toPublicArrayView($role)
+    {
+        $data = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+        ];
+
+        if ($role === null) {
+            return $data;
+        }
+
+        if ($role === ProgramUserRole::ROLE_PROGRAMMER || $role === ProgramUserRole::ROLE_STAFF) {
+            $data['state'] = $this->displayState();
+            $data['created_by'] = $this->created_by;
+            $data['created_at'] = $this->created_at;
+            $data['updated_at'] = $this->updated_at;
+
+            $data['members'] = $this->getProgramMembersPublic();
+        }
+
+        return $data;
+    }
+
+    protected function getProgramMembersPublic(): array
+    {
+        $getProgramUserRoles = $this->getProgramUserRoles();
+
+        foreach ($this->programUserRoles as $programUserRole) {
+            $members[] = [
+                'id' => $programUserRole->user->id,
+                'email' => $programUserRole->user->email,
+                'role' => $programUserRole->role,
+            ];
+        }
+
+        return $members;
+    }
+
 
     public function deleteProgram()
     {
