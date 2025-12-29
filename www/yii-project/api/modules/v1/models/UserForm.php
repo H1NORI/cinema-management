@@ -67,7 +67,7 @@ class UserForm extends User
         }
 
         if ($this->isAttributeChanged('username')) {
-            $this->token_version++;
+            $this->access_token = null;
         }
 
         if (!$this->save(false)) {
@@ -101,7 +101,7 @@ class UserForm extends User
             throw new ApiException('PASSWORDS_SHOULD_BE_EQUAL');
         }
 
-        $this->token_version++;
+        $this->access_token = null;
         $this->password_fail_count = 0;
 
         if (!$this->save(false)) {
@@ -117,7 +117,7 @@ class UserForm extends User
             throw ApiException::fromModel($this);
         }
 
-        $this->token_version++;
+        $this->access_token = null;
 
         if (!$this->save(false)) {
             throw new ApiException('ERROR_SAVING_USER');

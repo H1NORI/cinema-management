@@ -50,14 +50,14 @@ class SigninForm extends Model
             return false;
         }
 
-        $this->_user->token_version += 1;
+        $this->_user->access_token = $this->getAuthData(true);
         $this->_user->password_fail_count = 0;
 
-        if (!$this->_user->save(false, ['token_version', 'password_fail_count'])) {
+        if (!$this->_user->save(false, ['access_token', 'password_fail_count'])) {
             throw new ApiException('ERROR_SAVING_USER');
         }
 
-        return $this->getAuthData(true);
+        return $this->_user->access_token;
     }
 
     public function logout($id)
@@ -72,7 +72,7 @@ class SigninForm extends Model
             throw new ApiException('USER_DOESNT_EXIST');
         }
 
-        $user->token_version += 1;
+        $user->access_token = null;
 
         if (!$user->save(false)) {
             throw new ApiException('ERROR_SAVING_USER');

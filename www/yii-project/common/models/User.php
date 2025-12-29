@@ -17,6 +17,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $password_reset_token
  * @property int $password_fail_count
+ * @property string $access_token
  * @property string $verification_token
  * @property int $token_version
  * @property string $email
@@ -86,8 +87,8 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function incrementTokenVersion()
     {
-        $this->token_version++;
-        return $this->save(false, ['token_version']);
+        $this->access_token = null;
+        return $this->save(false, ['access_token']);
     }
 
     public function incrementFailCount()
@@ -98,9 +99,9 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function deactivateAccountAndIncrementTokenVersion()
     {
-        $this->token_version++;
+        $this->access_token = null;
         $this->status = self::STATUS_INACTIVE;
-        return $this->save(false, ['token_version', 'status']);
+        return $this->save(false, ['access_token', 'status']);
     }
 
     /**
@@ -120,11 +121,11 @@ class User extends ActiveRecord implements IdentityInterface
     {
         try {
             $jwt = Yii::$app->jwt;
-            $token = $jwt->loadToken((string) $token);
+            $tokenObj = $jwt->loadToken((string) $token);
 
             return static::findOne([
-                'id' => $token->claims()->get('uid', null),
-                'token_version' => $token->claims()->get('tv', 0),
+                'id' => $tokenObj->claims()->get('uid', null),
+                'access_token' => (string)$token,
                 'status' => self::STATUS_ACTIVE
             ]);
         } catch (\Exception $e) {
