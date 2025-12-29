@@ -291,8 +291,8 @@ class ProgramForm extends Program
 
         // AND semantics автоматически обеспечивается andFilterWhere
         $query
-            ->andFilterWhere(['like', 'program.name', $this->name])
-            ->andFilterWhere(['like', 'program.description', $this->description])
+            ->andFilterWhere(['like', 'programs.name', $this->name])
+            ->andFilterWhere(['like', 'programs.description', $this->description])
             ->andFilterWhere(['like', 'screenings.state', ScreeningForm::STATE_SCHEDULED])
             ->andFilterWhere(['like', 'screenings.film_title', $this->film_title])
             ->andFilterWhere(['like', 'screenings.auditorium', $this->auditorium]);
@@ -306,8 +306,8 @@ class ProgramForm extends Program
         }
 
         $query->orderBy([
-            'program.start_date' => SORT_ASC,
-            'program.name' => SORT_ASC,
+            'programs.start_date' => SORT_ASC,
+            'programs.name' => SORT_ASC,
         ]);
 
         return $query->all();

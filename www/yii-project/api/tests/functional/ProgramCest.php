@@ -45,6 +45,8 @@ class ProgramCest
 
     private function createTestUsers(FunctionalTester $I)
     {
+        $I->comment("=== Creating test users... ===");
+
         $user = User::findOne($this->adminId) ?? new User();
         $user->id = $this->adminId;
         $user->email = 'test_admin@test.com';
@@ -53,9 +55,10 @@ class ProgramCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'ADMIN';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->adminJwt = $user->access_token;
         $user->save();
 
-        $this->adminJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->programmerId) ?? new User();
         $user->id = $this->programmerId;
@@ -65,9 +68,10 @@ class ProgramCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->programmerJwt = $user->access_token;
         $user->save();
 
-        $this->programmerJwt = SigninForm::generateJwt($user);
 
         $user = User::findOne($this->staffId) ?? new User();
         $user->id = $this->staffId;
@@ -77,9 +81,10 @@ class ProgramCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->staffJwt = $user->access_token;
         $user->save();
 
-        $this->staffJwt = SigninForm::generateJwt($user);
 
 
         $user = User::findOne($this->secondProgrammerId) ?? new User();
@@ -90,9 +95,9 @@ class ProgramCest
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->role = 'USER';
         $user->status = $user::STATUS_ACTIVE;
+        $user->access_token = SigninForm::generateJwt($user);
+        $this->secondProgrammerJwt = $user->access_token;
         $user->save();
-
-        $this->secondProgrammerJwt = SigninForm::generateJwt($user);
     }
 
     public function deletePrograms(FunctionalTester $I)
@@ -145,6 +150,7 @@ class ProgramCest
 
     public function viewProgram(FunctionalTester $I)
     {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
         $I->sendGET('/program/' . $this->newProgramId);
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson([
@@ -862,10 +868,10 @@ class ProgramCest
      * INDEX PROGRAMS
      * ---------------------------------------------------- */
 
-    public function indexProgramsRequiresAuth(FunctionalTester $I)
+    public function indexProgramsDoesNotRequiresAuth(FunctionalTester $I)
     {
         $I->sendGET('/program');
-        $I->seeResponseCodeIs(401);
+        $I->seeResponseCodeIs(200);
     }
 
     public function indexProgramsAsAuthenticatedUser(FunctionalTester $I)
