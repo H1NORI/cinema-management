@@ -37,7 +37,7 @@ class ScreeningForm extends Screening
             ['end_time', 'date', 'format' => 'php:H:i:s', 'message' => 'INVALID_END_TIME'],
 
             // Custom validator for time range and duration check
-            [['start_time', 'end_time'], 'validateTimeRange', 'on' => ['create', 'update', 'submit']],
+            [['end_time'], 'validateTimeRange', 'on' => ['create', 'update', 'submit']],
 
             ['film_title', 'required', 'on' => ['submit'], 'message' => 'FILM_TITLE_REQUIRED'],
             ['film_title', 'string', 'max' => 255, 'message' => 'INVALID_FILM_TITLE'],
@@ -74,7 +74,14 @@ class ScreeningForm extends Screening
     public function validateTimeRange($attribute, $params)
     {
         // Преобразуем H:i в секунды
+        if (!is_string($this->start_time)) {
+            return;
+        }
         $startTime = strtotime($this->start_time);
+
+        if (!is_string($this->end_time)) {
+            return;
+        }
         $endTime = strtotime($this->end_time);
 
         if ($startTime === false || $endTime === false) {

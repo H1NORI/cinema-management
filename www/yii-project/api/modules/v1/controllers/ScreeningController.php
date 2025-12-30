@@ -243,7 +243,7 @@ class ScreeningController extends ApiController
         if ($model->assignScreeningHandler()) {
             return [
                 'success' => true,
-                'message' => 'Screening submitted successfully',
+                'message' => 'Screening handler assigned successfully',
                 'data' => [
                     'screening' => $model,
                 ],
