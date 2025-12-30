@@ -496,6 +496,16 @@ class ScreeningCest
         ]);
     }
 
+    public function submitSecondScreeningSuccessfully(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/screening/' . $this->newSecondScreeningId . '/submit');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening submitted successfully',
+        ]);
+    }
+
     public function assignHandlerRequiresProgrammerRole(FunctionalTester $I)
     {
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
@@ -518,12 +528,24 @@ class ScreeningCest
         ]);
     }
 
-    public function assignHandlerRequiresProgrammer(FunctionalTester $I)
+    public function assignHandlerSuccessfull(FunctionalTester $I)
     {
         $this->programUpdateState($I);
 
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
         $I->sendPUT('/screening/' . $this->newScreeningId . '/assign-handler', [
+            'handler_id' => $this->secondStaffId
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening handler assigned successfully',
+        ]);
+    }
+
+    public function assignHandlerForSecondScreeningSuccessfull(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->programmerJwt);
+        $I->sendPUT('/screening/' . $this->newSecondScreeningId . '/assign-handler', [
             'handler_id' => $this->secondStaffId
         ]);
         $I->seeResponseCodeIs(200);
@@ -606,14 +628,27 @@ class ScreeningCest
         ]);
     }
 
-    public function withdrawScreeningRequiresProgramSubmissionOrCreatedState(FunctionalTester $I)
+    public function reviewSecondScreeningSuccessfull(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondStaffJwt);
+        $I->sendPUT('/screening/' . $this->newSecondScreeningId . '/review', [
+            'score' => 67,
+            'comments' => 'Here is some comments about film'
+        ]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening review added successfully'
+        ]);
+    }
+
+    public function withdrawScreeningRequiresCreatedState(FunctionalTester $I)
     {
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
         $I->sendDelete('/screening/' . $this->newSecondScreeningId . '/withdraw');
         $I->seeResponseCodeIs(400);
         $I->seeResponseContainsJson([
-            'error_code' => 7014,
-            'message' => 'Program is not in SUBMISION or CREATED state'
+            'error_code' => 7005,
+            'message' => 'Can change screening only when state is CREATED'
         ]);
     }
 
@@ -645,6 +680,16 @@ class ScreeningCest
 
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
         $I->sendPUT('/screening/' . $this->newScreeningId . '/approve');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening approved successfully'
+        ]);
+    }
+
+    public function approveSecondScreeningSuccessfull(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/screening/' . $this->newSecondScreeningId . '/approve');
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson([
             'message' => 'Screening approved successfully'
@@ -686,18 +731,78 @@ class ScreeningCest
         ]);
     }
 
-    // public function acceptRequiresProgrammerRole(FunctionalTester $I)
-    // {
-    //     $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
-    //     $I->sendPUT('/screening/' . $this->newScreeningId . '/accept');
-    //     $I->seeResponseCodeIs(400);
-    //     $I->seeResponseContainsJson([
-    //         'error_code' => 8002,
-    //         'message' => 'Programmer role required to make this action'
-    //     ]);
-    // }
+    public function finalSubmitSuccessfull(FunctionalTester $I)
+    {
+        $this->programUpdateState($I);
 
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/screening/' . $this->newScreeningId . '/final-submit');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening finally submitted successfully',
+        ]);
+    }
 
+    public function acceptRequiresProgrammerRole(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->staffJwt);
+        $I->sendPUT('/screening/' . $this->newScreeningId . '/accept');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 8002,
+            'message' => 'Programmer role required to make this action'
+        ]);
+    }
 
+    public function acceptRequiresProgramDecisionState(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondProgrammerJwt);
+        $I->sendPUT('/screening/' . $this->newScreeningId . '/accept');
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseContainsJson([
+            'error_code' => 7016,
+            'message' => 'Program is not in DECISION state'
+        ]);
+    }
+
+    public function acceptSuccessfull(FunctionalTester $I)
+    {
+        $this->programUpdateState($I);
+
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondProgrammerJwt);
+        $I->sendPUT('/screening/' . $this->newScreeningId . '/accept');
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'message' => 'Screening finally accepted successfully'
+        ]);
+    }
+
+    public function viewScreeningScheduledStatus(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondProgrammerJwt);
+        $I->sendGet('/screening/' . $this->newScreeningId);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'data' => [
+                'screening' => [
+                    'state' => 'SCHEDULED'
+                ],
+            ],
+        ]);
+    }
+
+    public function viewSecondScreeningAutoRejectedSuccessfull(FunctionalTester $I)
+    {
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->secondProgrammerJwt);
+        $I->sendGet('/screening/' . $this->newSecondScreeningId);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson([
+            'data' => [
+                'screening' => [
+                    'state' => 'REJECTED'
+                ],
+            ],
+        ]);
+    }
 
 }

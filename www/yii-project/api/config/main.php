@@ -70,7 +70,7 @@ return [
                     'controller' => ['v1/screening'],
                     'pluralize' => false,
                     'extraPatterns' => [
-                        'GET <program_id:\d+>' => 'index',
+                        // 'GET <program_id:\d+>' => 'index',
                         'GET index/<program_id:\d+>' => 'index',
                         'PUT <id:\d+>/submit' => 'submit',
                         'DELETE <id:\d+>/withdraw' => 'withdraw',
