@@ -5,7 +5,7 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=cinema_managment_mysql;dbname=cinema_managment;local_infile=1',
+            'dsn' => 'mysql:host=cinema_managment_mysql;dbname=cinema_managment_test;local_infile=1',
             'username' => 'yii',
             'password' => 'yii',
             'charset' => 'utf8',
