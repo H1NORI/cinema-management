@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\DataLogBehavior;
 use Yii;
 
 /**
@@ -31,6 +32,13 @@ class ProgramUserRole extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'program_user_roles';
+    }
+
+    public function behaviors()
+    {
+        return [
+            DataLogBehavior::class
+        ];
     }
 
     /**
