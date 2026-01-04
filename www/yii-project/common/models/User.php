@@ -7,6 +7,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\filters\RateLimitInterface;
 use yii\web\IdentityInterface;
 
 /**
@@ -20,6 +21,8 @@ use yii\web\IdentityInterface;
  * @property string $access_token
  * @property string $verification_token
  * @property int $token_version
+ * @property int $allowance
+ * @property int $allowance_updated_at
  * @property string $email
  * @property string $auth_key
  * @property string $role
@@ -28,7 +31,7 @@ use yii\web\IdentityInterface;
  * @property int $updated_at
  * @property string $password write-only password
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface, RateLimitInterface
 {
     /**
      * ENUM field values
@@ -85,6 +88,28 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public function getRateLimit($request, $action)
+    {
+        if (YII_ENV_DEV || YII_ENV_TEST) {
+            return [100000, 60];
+        }
+
+        // [запросов, за сколько секунд]
+        return [100, 60]; // 100 запросов в минуту
+    }
+
+    public function loadAllowance($request, $action)
+    {
+        return [$this->allowance, $this->allowance_updated_at];
+    }
+
+    public function saveAllowance($request, $action, $allowance, $timestamp)
+    {
+        $this->allowance = $allowance;
+        $this->allowance_updated_at = $timestamp;
+        $this->save(false);
+    }
+
     public function incrementTokenVersion()
     {
         $this->access_token = null;
@@ -125,7 +150,7 @@ class User extends ActiveRecord implements IdentityInterface
 
             return static::findOne([
                 'id' => $tokenObj->claims()->get('uid', null),
-                'access_token' => (string)$token,
+                'access_token' => (string) $token,
                 'status' => self::STATUS_ACTIVE
             ]);
         } catch (\Exception $e) {
