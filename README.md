@@ -1,6 +1,6 @@
 docker compose up -d
 
-docker exec -it cinema_managment_php_php bash
+docker exec -it cinema_management_php_php bash
 
 cd yii-project/
 

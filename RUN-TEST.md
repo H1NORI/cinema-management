@@ -1,4 +1,4 @@
-Before running any tests, update DB configs to use cinema_managment_test, you should change it here: 
+Before running any tests, update DB configs to use cinema_management_test, you should change it here: 
 
 ```
 www/yii-project/api/config/test.php

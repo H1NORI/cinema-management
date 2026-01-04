@@ -8,7 +8,7 @@ modules:
     - PhpBrowser:
         url: http://api.cinema/v1
     - Db:
-        dsn: 'mysql:host=cinema_managment_mysql;dbname=cinema_managment;local_infile=1'
+        dsn: 'mysql:host=cinema_management_mysql;dbname=cinema_management;local_infile=1'
         user: 'yii'
         password: 'yii'
     # - Yii2:
