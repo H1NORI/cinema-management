@@ -1,0 +1,1291 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: cinema-managment
+meta:
+  id: wrk_aec6bed030804178b5eba18f61ff4a46
+  created: 1767616053426
+  modified: 1767616053426
+  description: ""
+collection:
+  - name: cinema-managment
+    meta:
+      id: fld_bbf4b2ce04214aa8879f74b8f4e290b4
+      created: 1767616053461
+      modified: 1767616053461
+      sortKey: -1767616052072
+      description: ""
+    children:
+      - name: tests
+        meta:
+          id: fld_35d8e0ccf05e47e49452ce892b149073
+          created: 1767616087262
+          modified: 1767616087262
+          sortKey: -1767616087262
+          description: ""
+        children:
+          - name: insomnia
+            meta:
+              id: fld_ed4ce9390ce648d19e747a22c84dd5a1
+              created: 1767616101352
+              modified: 1767616101352
+              sortKey: -1767616101352
+              description: ""
+            children:
+              - name: auth
+                meta:
+                  id: fld_9e95ffd9ca3c49c7bd7af96c20f8554d
+                  created: 1767616053469
+                  modified: 1767616129350
+                  sortKey: -1767616123571
+                  description: ""
+                children:
+                  - url: "{{ _.base_url }}/auth/signin"
+                    name: signin
+                    meta:
+                      id: req_5609eaf757554603863de36cb4f6bb04
+                      created: 1767616053474
+                      modified: 1767618031639
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052070
+                    method: POST
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: email
+                          value: user@gmail.com
+                          disabled: true
+                        - name: password
+                          value: Net12345_
+                          disabled: true
+                        - name: email
+                          value: admin@gmail.com
+                          disabled: false
+                        - name: password
+                          value: password123
+                          disabled: false
+                        - name: email
+                          value: test_staff@test.com
+                          disabled: true
+                        - name: password
+                          value: Net12345_
+                          disabled: true
+                        - name: email
+                          value: test_programmer@test.com
+                          disabled: true
+                        - name: password
+                          value: Net12345_
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/auth/signup"
+                    name: signup
+                    meta:
+                      id: req_97eb5dea57e94ab4a5047c83a4fd61b9
+                      created: 1767616053478
+                      modified: 1767618185080
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052069
+                    method: POST
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: email
+                          value: admin@gmail.com
+                          disabled: true
+                        - name: password
+                          value: Net12345_
+                          disabled: true
+                        - name: username
+                          value: Adm1n
+                          disabled: true
+                        - name: email
+                          value: user@gmail.com
+                          disabled: false
+                        - name: password
+                          value: Net12345_
+                          disabled: false
+                        - name: username
+                          value: User_
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/auth/logout/1"
+                    name: logout
+                    meta:
+                      id: req_58e1c2bd80054705868d8f13c40f2069
+                      created: 1767616053481
+                      modified: 1767618191525
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052068
+                    method: POST
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: email
+                          value: admin@gmail.com
+                          disabled: true
+                        - name: password
+                          value: Net12345_
+                          disabled: true
+                        - name: username
+                          value: Adm1n
+                          disabled: true
+                        - name: email
+                          value: user@gmail.com
+                          disabled: false
+                        - name: password
+                          value: Net12345_
+                          disabled: false
+                        - name: username
+                          value: User_
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+              - name: site
+                meta:
+                  id: fld_52103c0d9bf046fbaa8de2a7f7881491
+                  created: 1767616053483
+                  modified: 1767616133409
+                  sortKey: -1767616123671
+                  description: ""
+                children:
+                  - url: "{{ _.base_url }}/site"
+                    name: index
+                    meta:
+                      id: req_117b7ff9e74b483cb99fc4836aa7fa8d
+                      created: 1767616053486
+                      modified: 1767618149837
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052066
+                    method: GET
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/site/test"
+                    name: test
+                    meta:
+                      id: req_13241b6f8646481a98dab5f6b9760d25
+                      created: 1767616053489
+                      modified: 1767618155486
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052065
+                    method: GET
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/site/test-error"
+                    name: test-error
+                    meta:
+                      id: req_a347c948fcad4907ac5487427ec609cf
+                      created: 1767616053491
+                      modified: 1767618165754
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052064
+                    method: GET
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/site/token"
+                    name: token
+                    meta:
+                      id: req_c94eab8ceab045ce9be5761f90927b0b
+                      created: 1767616053494
+                      modified: 1767618174186
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052063
+                    method: GET
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+              - name: program
+                meta:
+                  id: fld_573adbdb16e747e9b4e91970867c5efa
+                  created: 1767616053496
+                  modified: 1767616136632
+                  sortKey: -1767616123771
+                  description: ""
+                children:
+                  - url: "{{ _.base_url }}/program/index"
+                    name: index
+                    meta:
+                      id: req_a4ffc19a1ef142e7aa5c08cf2d475929
+                      created: 1767616053499
+                      modified: 1767618072913
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052061
+                    method: GET
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: name
+                          value: Create task
+                          disabled: false
+                        - name: mode
+                          value: "1"
+                          disabled: false
+                        - name: status
+                          value: "0"
+                          disabled: false
+                        - name: days_of_week
+                          value: "127"
+                          disabled: false
+                        - name: start_at
+                          value: 12:40:00
+                          disabled: false
+                        - name: end_at
+                          value: 13:20:00
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/search"
+                    name: search
+                    meta:
+                      id: req_7982b244ee4a49118233241f3bb70901
+                      created: 1767616053503
+                      modified: 1767618078607
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052060
+                    method: GET
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    parameters:
+                      - name: name
+                        value: "13"
+                        disabled: true
+                      - name: description
+                        value: ""
+                        disabled: true
+                      - name: start_date
+                        value: 2025-01-01
+                        disabled: false
+                      - name: end_date
+                        value: 2025-02-28
+                        disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/146"
+                    name: view
+                    meta:
+                      id: req_4c1b8b7bcb494dd7b077365b8cf57677
+                      created: 1767616053506
+                      modified: 1767618084477
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052059
+                    method: GET
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program"
+                    name: create
+                    meta:
+                      id: req_83f2b1df6f28404fa86995646611de14
+                      created: 1767616053509
+                      modified: 1767618091410
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052058
+                    method: POST
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: name
+                          value: Remove programmer
+                          disabled: false
+                        - name: description
+                          value: log(x)
+                          disabled: false
+                        - name: start_date
+                          value: 2025-01-27
+                          disabled: false
+                        - name: end_date
+                          value: 2025-01-30
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147"
+                    name: update
+                    meta:
+                      id: req_78e33e28bda24ea18b2db5b6a8bf2336
+                      created: 1767616053511
+                      modified: 1767618104068
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052057
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: name
+                          value: LogarithmX23
+                          disabled: true
+                        - name: description
+                          value: this really makes sens
+                          disabled: false
+                        - name: end_date
+                          value: 2025-01-28
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147/update-state"
+                    name: update-state
+                    meta:
+                      id: req_93be3658361b42168306a33b1217d26e
+                      created: 1767616053513
+                      modified: 1767618109062
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052056
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: name
+                          value: LogarithmX23
+                          disabled: false
+                        - name: description
+                          value: log(xxx)
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147/add-programmer"
+                    name: add-programmer
+                    meta:
+                      id: req_3eaacf8acaef45728532ac5ce39868d1
+                      created: 1767616053516
+                      modified: 1767618115975
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052055
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: user_id
+                          value: "999991"
+                          disabled: false
+                        - name: description
+                          value: log(xxx)
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147/add-staff"
+                    name: add-staff
+                    meta:
+                      id: req_3123354461f44079bb016ce19fcb0a36
+                      created: 1767616053519
+                      modified: 1767618122525
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052054
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: user_id
+                          value: "999991"
+                          disabled: false
+                        - name: description
+                          value: log(xxx)
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147/remove-programmer"
+                    name: remove-programmer
+                    meta:
+                      id: req_597a8b34f56c46b79dd1245da1474ab8
+                      created: 1767616053522
+                      modified: 1767618128590
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052053
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: user_id
+                          value: "999991"
+                          disabled: false
+                        - name: description
+                          value: log(xxx)
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/147/remove-staff"
+                    name: remove-staff
+                    meta:
+                      id: req_cf51a0e94ce147189806fb81e1c8a605
+                      created: 1767616053526
+                      modified: 1767618135279
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052052
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: user_id
+                          value: "999991"
+                          disabled: false
+                        - name: description
+                          value: log(xxx)
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/program/145"
+                    name: delete
+                    meta:
+                      id: req_ba83b215d17349c293cda47590b7531b
+                      created: 1767616053528
+                      modified: 1767618142172
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052051
+                    method: DELETE
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+              - name: screening
+                meta:
+                  id: fld_5165f59c0ba54c8f965fbe7d20aee55c
+                  created: 1767616053532
+                  modified: 1767616123540
+                  sortKey: -1767616123471
+                  description: ""
+                children:
+                  - url: "{{ _.base_url }}/screening/index/146"
+                    name: index
+                    meta:
+                      id: req_b775495c49ee4500b612a55ce945460a
+                      created: 1767616053535
+                      modified: 1767618196773
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052049
+                    method: GET
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/search"
+                    name: search
+                    meta:
+                      id: req_4fea39ed4a434d519a6ec2e310e9d707
+                      created: 1767616053537
+                      modified: 1767618203941
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052048
+                    method: GET
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    parameters:
+                      - name: program_id
+                        value: "146"
+                        disabled: false
+                      - name: is_timetable
+                        value: "true"
+                        disabled: false
+                      - name: film_title
+                        value: be back i'll
+                        disabled: true
+                      - name: description
+                        value: ""
+                        disabled: true
+                      - name: start_date
+                        value: 2025-01-25
+                        disabled: true
+                      - name: end_date
+                        value: 2025-01-30
+                        disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/2"
+                    name: view
+                    meta:
+                      id: req_c633af5deff1421dabf0c07ef8cc79f9
+                      created: 1767616053540
+                      modified: 1767618209784
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052047
+                    method: GET
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening"
+                    name: create
+                    meta:
+                      id: req_bba378cd1a1545aba54dceb6fe51df97
+                      created: 1767616053543
+                      modified: 1767618215334
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052046
+                    method: POST
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: program_id
+                          value: "147"
+                          disabled: false
+                        - name: film_title
+                          value: I'll be back
+                          disabled: true
+                        - name: film_cast
+                          value: Krutoi
+                          disabled: true
+                        - name: film_genres
+                          value: Boevik
+                          disabled: true
+                        - name: film_duration
+                          value: "100"
+                          disabled: true
+                        - name: start_time
+                          value: 10:23:0
+                          disabled: true
+                        - name: end_time
+                          value: 10:25:0
+                          disabled: true
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3"
+                    name: update
+                    meta:
+                      id: req_41f5165eabdf4dc1892f62e1a2a892ef
+                      created: 1767616053546
+                      modified: 1767618220995
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052045
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: program_id
+                          value: "4"
+                          disabled: false
+                        - name: film_title
+                          value: Back to the future
+                          disabled: false
+                        - name: film_cast
+                          value: HZ kto tam
+                          disabled: false
+                        - name: film_genres
+                          value: nauka
+                          disabled: false
+                        - name: film_duration
+                          value: "122"
+                          disabled: false
+                        - name: auditorium
+                          value: 4ыаываы
+                          disabled: false
+                        - name: start_time
+                          value: 8:23:00
+                          disabled: false
+                        - name: end_time
+                          value: 10:25:01
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/submit"
+                    name: submit
+                    meta:
+                      id: req_1bb5e10ffd1a4fc39642d6e83db5dffe
+                      created: 1767616053549
+                      modified: 1767618227747
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052044
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/5/withdraw"
+                    name: withdraw
+                    meta:
+                      id: req_9ef16946c83940dd98c46c9f3b836dbf
+                      created: 1767616053551
+                      modified: 1767618233450
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052043
+                    method: DELETE
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/assign-handler"
+                    name: assign-handler
+                    meta:
+                      id: req_f065be5cc6d740caaa96f074ffb562dd
+                      created: 1767616053554
+                      modified: 1767618238775
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052042
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: handler_id
+                          value: "999991"
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/review"
+                    name: review
+                    meta:
+                      id: req_920d79b4599e4f1495e05f096a5f68b9
+                      created: 1767616053557
+                      modified: 1767618244470
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052041
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: score
+                          value: "22"
+                          disabled: false
+                        - name: comments
+                          value: "12312daskjfdasb hf qheFBHBH bhbfH EAFBHHBFq "
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/reject"
+                    name: reject
+                    meta:
+                      id: req_df215b57f2a8411ebc1a5dc3ce2ad83c
+                      created: 1767616053560
+                      modified: 1767618250647
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052040
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: rejection_reason
+                          value: "bad comments "
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/approve"
+                    name: approve
+                    meta:
+                      id: req_8636588e9c8444f986f7fd13a01c9ba3
+                      created: 1767616053563
+                      modified: 1767618257917
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052039
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/final-submit"
+                    name: final-submit
+                    meta:
+                      id: req_971cacc057b343209b915428896d1027
+                      created: 1767616053566
+                      modified: 1767618263744
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052038
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/screening/3/accept"
+                    name: accept
+                    meta:
+                      id: req_ad49322b5f3c4029953883aa06d1c5c7
+                      created: 1767616053569
+                      modified: 1767618269876
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052037
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+              - name: user
+                meta:
+                  id: fld_91ac5f1175634b139939b8f36523f70a
+                  created: 1767616053571
+                  modified: 1767616139487
+                  sortKey: -1767616123871
+                  description: ""
+                children:
+                  - url: "{{ _.base_url }}/user/1"
+                    name: update
+                    meta:
+                      id: req_043018a4efbb42c49d5edf34f027d235
+                      created: 1767616053574
+                      modified: 1767618047798
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052035
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: email
+                          value: bolshe_ne_WW@gmail.com
+                          disabled: false
+                        - name: username
+                          value: wwziza
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/user/update-status/3"
+                    name: update-status
+                    meta:
+                      id: req_1fe5091d416f4403be7c91df13825f81
+                      created: 1767616053577
+                      modified: 1767618053779
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052034
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: status
+                          value: "0"
+                          disabled: true
+                        - name: status
+                          value: "9"
+                          disabled: true
+                        - name: status
+                          value: "10"
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/user/update-password"
+                    name: update-password
+                    meta:
+                      id: req_5403453664904a8996510a91c9daff41
+                      created: 1767616053580
+                      modified: 1767618059606
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052033
+                    method: PUT
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                      params:
+                        - name: password
+                          value: Net12345_
+                          disabled: false
+                        - name: new_password
+                          value: Wwziza123_
+                          disabled: false
+                        - name: confirm_password
+                          value: Wwziza123_
+                          disabled: false
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+                  - url: "{{ _.base_url }}/user/3"
+                    name: delete
+                    meta:
+                      id: req_12c048d4daa54f9ebe470c546b6d1905
+                      created: 1767616053583
+                      modified: 1767618066410
+                      isPrivate: false
+                      description: ""
+                      sortKey: -1767616052032
+                    method: DELETE
+                    body:
+                      mimeType: application/x-www-form-urlencoded
+                    headers:
+                      - name: Content-Type
+                        value: application/x-www-form-urlencoded
+                    authentication:
+                      type: bearer
+                      disabled: false
+                      token: "{{bearer}}"
+                      prefix: ""
+                    settings:
+                      renderRequestBody: true
+                      encodeUrl: true
+                      followRedirects: global
+                      cookies:
+                        send: true
+                        store: true
+                      rebuildPath: true
+    environment:
+      url: ""
+      bearer: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_b387ad74637d7efe862362527e23f8bbe4df2ef6
+    created: 1767616056901
+    modified: 1767616056901
+environments:
+  name: Base Environment
+  meta:
+    id: env_b387ad74637d7efe862362527e23f8bbe4df2ef6
+    created: 1767616053592
+    modified: 1767617883155
+    isPrivate: false
+  subEnvironments:
+    - name: local
+      meta:
+        id: env_5f7b22f1b8424736968337181bbf9e25
+        created: 1767617318022
+        modified: 1767617757745
+        isPrivate: false
+        sortKey: 1767617318022
+      data:
+        base_url: http://localhost/v1
+        bearer: ""
