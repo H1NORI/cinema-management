@@ -2,6 +2,11 @@
 
 ## 🚀 Quick Start
 
+### Add next line to /etc/hosts on your machine
+```bash
+127.0.0.1       api.cinema
+```
+
 ### Start of container
 
 ```bash
